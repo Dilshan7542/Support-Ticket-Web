@@ -1,18 +1,20 @@
 <header class="d-flex align-items-center justify-content-between mb-4">
   <div>
-    <h2 class="h3 mb-1">Tickets</h2>
-    <p class="app-muted mb-0">Manage support requests.</p>
+    <h2 class="h3 mb-1">Complaints</h2>
+    <p class="app-muted mb-0">Manage customer complaints and statuses.</p>
   </div>
-  <a class="btn btn-primary" routerLink="/tickets/create">New Ticket</a>
 </header>
 
 <section class="list-group shadow-sm">
   @for (ticket of store.tickets(); track ticket.id) {
-    <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" [routerLink]="['/tickets', ticket.id]">
-      <strong>{{ ticket.title }}</strong>
+    <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center gap-3" [routerLink]="['/tickets', ticket.id]">
+      <div>
+        <strong>{{ ticket.title }}</strong>
+        <div class="app-muted small">Customer: {{ ticket.createdBy || 'Unknown' }} | Priority: {{ ticket.priority || 'MEDIUM' }}</div>
+      </div>
       <span class="badge text-bg-secondary">{{ ticket.status }}</span>
     </a>
   } @empty {
-    <div class="list-group-item">No tickets found.</div>
+    <div class="list-group-item">No complaints found.</div>
   }
 </section>

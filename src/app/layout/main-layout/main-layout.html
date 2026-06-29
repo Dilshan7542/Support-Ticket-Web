@@ -7,17 +7,16 @@
 
     <nav class="nav nav-pills flex-column gap-1">
       <a class="nav-link" routerLink="/dashboard">Dashboard</a>
-      <a class="nav-link" routerLink="/tickets">Tickets</a>
-      <a class="nav-link" routerLink="/departments">Departments</a>
-      <a class="nav-link" routerLink="/activity-logs">Activity Logs</a>
+      <a class="nav-link" routerLink="/tickets">Complaints</a>
     </nav>
   </aside>
 
   <div class="flex-fill">
-    <header class="border-bottom px-4 py-3 d-flex justify-content-end">
+    <header class="border-bottom px-4 py-3 d-flex justify-content-end gap-2">
       <button type="button" class="btn btn-outline-secondary btn-sm" (click)="themeService.toggle()">
         {{ themeService.isDark() ? 'Light mode' : 'Dark mode' }}
       </button>
+      <button type="button" class="btn btn-outline-danger btn-sm" (click)="logout()">Logout</button>
     </header>
 
     <main class="container-fluid p-4">

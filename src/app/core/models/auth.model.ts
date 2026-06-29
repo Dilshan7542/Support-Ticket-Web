@@ -1,11 +1,11 @@
 export interface LoginRequest {
-  email: string;
+  username: string;
   password: string;
 }
 
 export interface RegisterRequest {
   name: string;
-  email: string;
+  username: string;
   password: string;
   departmentId?: string | number;
 }
@@ -19,6 +19,6 @@ export interface AuthTokens {
 export interface AuthUser {
   id: string | number;
   name?: string;
-  email?: string;
+  username?: string;
   role?: string;
 }

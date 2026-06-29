@@ -1,8 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
-
-import { AuthStore } from '../state/auth.store';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-register',
@@ -11,18 +9,17 @@ import { AuthStore } from '../state/auth.store';
   styleUrl: './register.scss'
 })
 export class Register {
-  readonly store = inject(AuthStore);
   private readonly formBuilder = inject(FormBuilder);
+  private readonly router = inject(Router);
 
   readonly form = this.formBuilder.nonNullable.group({
-    name: ['', Validators.required],
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', Validators.required]
+    username: ['', Validators.required]
   });
 
   submit(): void {
     if (this.form.valid) {
-      this.store.register(this.form.getRawValue());
+      localStorage.setItem('support_ticket_customer_identity', this.form.controls.username.value.trim());
+      this.router.navigateByUrl('/customer');
     }
   }
 }

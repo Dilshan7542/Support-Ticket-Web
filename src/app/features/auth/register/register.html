@@ -1,14 +1,13 @@
 <section class="card shadow-sm border-0 w-100 auth-card">
   <div class="card-body p-4">
-    <h2 class="h4 mb-4">Register</h2>
+    <h2 class="h4 mb-1">Customer Login</h2>
+    <p class="app-muted mb-4">Enter an email or username to submit and track complaints.</p>
 
     <form class="vstack gap-3" [formGroup]="form" (ngSubmit)="submit()">
-      <input class="form-control" formControlName="name" placeholder="Name" />
-      <input class="form-control" type="email" formControlName="email" placeholder="Email" />
-      <input class="form-control" type="password" formControlName="password" placeholder="Password" />
-      <button class="btn btn-primary" type="submit" [disabled]="form.invalid || store.loading()">Create</button>
+      <input class="form-control" type="text" formControlName="username" placeholder="Email or username" />
+      <button class="btn btn-primary" type="submit" [disabled]="form.invalid">Continue</button>
     </form>
 
-    <a class="d-inline-block mt-3" routerLink="/auth/login">Back to login</a>
+    <a class="d-inline-block mt-3" routerLink="/auth/login">Admin login</a>
   </div>
 </section>

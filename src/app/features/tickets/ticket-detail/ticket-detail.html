@@ -1,10 +1,76 @@
 <header class="mb-4">
-  <h2 class="h3 mb-1">Ticket Detail</h2>
-  <p class="app-muted mb-0">Selected ticket response.</p>
+  <h2 class="h3 mb-1">Complaint Detail</h2>
+  <p class="app-muted mb-0">Control status, assignment, and admin replies.</p>
 </header>
 
-<section class="card border-0 shadow-sm">
-  <div class="card-body">
-    <pre class="mb-0">{{ store.selectedTicket() | json }}</pre>
-  </div>
-</section>
+@if (ticket(); as selectedTicket) {
+  <section class="detail-grid">
+    <article class="card border-0 shadow-sm">
+      <div class="card-body">
+        <div class="d-flex justify-content-between gap-3 mb-3">
+          <div>
+            <h3 class="h5 mb-1">{{ selectedTicket.title }}</h3>
+            <p class="app-muted mb-0">Customer: {{ selectedTicket.createdBy || 'Unknown' }}</p>
+          </div>
+          <span class="badge text-bg-secondary align-self-start">{{ selectedTicket.status }}</span>
+        </div>
+
+        <p>{{ selectedTicket.description }}</p>
+        <dl class="row mb-0">
+          <dt class="col-sm-3">Priority</dt>
+          <dd class="col-sm-9">{{ selectedTicket.priority || 'MEDIUM' }}</dd>
+          <dt class="col-sm-3">Assigned to</dt>
+          <dd class="col-sm-9">{{ selectedTicket.assignedTo || 'Unassigned' }}</dd>
+          <dt class="col-sm-3">Created</dt>
+          <dd class="col-sm-9">{{ selectedTicket.createdAt | date:'medium' }}</dd>
+        </dl>
+      </div>
+    </article>
+
+    <aside class="vstack gap-3">
+      <form class="card border-0 shadow-sm" [formGroup]="statusForm" (ngSubmit)="updateStatus()">
+        <div class="card-body vstack gap-3">
+          <h3 class="h5 mb-0">Admin Controls</h3>
+          <select class="form-select" formControlName="status">
+            <option value="OPEN">Open</option>
+            <option value="IN_PROGRESS">In progress</option>
+            <option value="WAITING_CUSTOMER">Waiting customer</option>
+            <option value="RESOLVED">Resolved</option>
+            <option value="CLOSED">Closed</option>
+          </select>
+          <input class="form-control" formControlName="assignedTo" placeholder="Assign to" />
+          <button class="btn btn-primary" type="submit">Update complaint</button>
+        </div>
+      </form>
+
+      <form class="card border-0 shadow-sm" [formGroup]="replyForm" (ngSubmit)="addReply()">
+        <div class="card-body vstack gap-3">
+          <h3 class="h5 mb-0">Reply</h3>
+          <textarea class="form-control" rows="4" formControlName="message" placeholder="Message to customer"></textarea>
+          <button class="btn btn-outline-primary" type="submit" [disabled]="replyForm.invalid">Send reply</button>
+        </div>
+      </form>
+    </aside>
+  </section>
+
+  <section class="card border-0 shadow-sm mt-3">
+    <div class="card-body">
+      <h3 class="h5 mb-3">Replies</h3>
+      <div class="vstack gap-3">
+        @for (reply of selectedTicket.replies; track reply.id) {
+          <div class="border rounded p-3">
+            <strong>{{ reply.userId }}</strong>
+            <p class="mb-1">{{ reply.message }}</p>
+            <small class="app-muted">{{ reply.createdAt | date:'medium' }}</small>
+          </div>
+        } @empty {
+          <p class="app-muted mb-0">No replies yet.</p>
+        }
+      </div>
+    </div>
+  </section>
+} @else {
+  <section class="card border-0 shadow-sm">
+    <div class="card-body">Complaint not found.</div>
+  </section>
+}

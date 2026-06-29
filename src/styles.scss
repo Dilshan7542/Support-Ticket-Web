@@ -17,10 +17,18 @@ body {
 }
 
 .btn-primary {
+  --bs-btn-color: #fff;
   --bs-btn-bg: var(--primary-500);
   --bs-btn-border-color: var(--primary-500);
+  --bs-btn-hover-color: #fff;
   --bs-btn-hover-bg: var(--primary-400);
   --bs-btn-hover-border-color: var(--primary-400);
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: var(--primary-300);
+  --bs-btn-active-border-color: var(--primary-300);
+  --bs-btn-disabled-color: #fff;
+  --bs-btn-disabled-bg: var(--primary-500);
+  --bs-btn-disabled-border-color: var(--primary-500);
 }
 
 .app-surface {
