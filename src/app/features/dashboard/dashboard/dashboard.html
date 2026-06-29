@@ -1,7 +1,41 @@
 <header class="mb-4">
   <h2 class="h3 mb-1">Admin Dashboard</h2>
-  <p class="app-muted mb-0">Complaint summary from the local demo portal.</p>
+  <p class="app-muted mb-0">AI-Based Support Ticket Management System overview and complaint summary.</p>
 </header>
+
+<section class="proposal-hero mb-3">
+  <div>
+    <span class="text-uppercase fw-semibold small">Research Proposal</span>
+    <h3 class="h2 mt-2 mb-3">AI-Based Support Ticket Management System</h3>
+    <p class="mb-0">{{ projectFocus }}</p>
+  </div>
+</section>
+
+<section class="row g-3 mb-3">
+  <div class="col-lg-7">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <h3 class="h5 mb-3">Project Summary</h3>
+        <ul class="proposal-list mb-0">
+          @for (highlight of proposalHighlights; track highlight) {
+            <li>{{ highlight }}</li>
+          }
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <h3 class="h5 mb-3">Main Objective</h3>
+        <p class="app-muted mb-0">
+          Design and develop an AI-based support ticket management system that can classify customer complaints,
+          predict priority, assign tickets to suitable departments, and support agents with suggested replies.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
 
 <section class="row g-3">
   <div class="col-md-3">
@@ -34,6 +68,96 @@
         <span class="app-muted">Closed</span>
         <strong class="d-block display-6">{{ closed() }}</strong>
       </div>
+    </div>
+  </div>
+</section>
+
+<section class="row g-3 mt-1">
+  <div class="col-xl-6">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <h3 class="h5 mb-3">Specific Objectives</h3>
+        <ul class="proposal-list mb-0">
+          @for (objective of objectives; track objective) {
+            <li>{{ objective }}</li>
+          }
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-6">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <h3 class="h5 mb-3">AI Workflow</h3>
+        <div class="workflow">
+          @for (item of aiWorkflow; track item.step) {
+            <div class="workflow-item">
+              <span>{{ $index + 1 }}</span>
+              <div>
+                <strong>{{ item.step }}</strong>
+                <p class="app-muted mb-0">{{ item.detail }}</p>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="row g-3 mt-1">
+  <div class="col-xl-6">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <h3 class="h5 mb-3">Main System Modules</h3>
+        <div class="module-grid">
+          @for (module of modules; track module.name) {
+            <div class="module-item">
+              <strong>{{ module.name }}</strong>
+              <p class="app-muted mb-0">{{ module.detail }}</p>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-6">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <h3 class="h5 mb-3">Department Assignment Logic</h3>
+        <div class="table-responsive">
+          <table class="table align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Predicted Category</th>
+                <th>Assigned Department</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (route of categoryRouting; track route.category) {
+                <tr>
+                  <td>{{ route.category }}</td>
+                  <td>{{ route.department }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="card border-0 shadow-sm mt-3">
+  <div class="card-body">
+    <h3 class="h5 mb-3">Implementation Time Plan</h3>
+    <div class="timeline">
+      @for (item of timeline; track item.week) {
+        <div class="timeline-item">
+          <span>Week {{ item.week }}</span>
+          <p class="mb-0">{{ item.activity }}</p>
+        </div>
+      }
     </div>
   </div>
 </section>
