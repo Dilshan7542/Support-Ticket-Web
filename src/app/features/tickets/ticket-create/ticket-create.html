@@ -1,0 +1,13 @@
+<header class="mb-4">
+  <h2 class="h3 mb-1">Create Ticket</h2>
+  <p class="app-muted mb-0">Open a new support request.</p>
+</header>
+
+<form class="card border-0 shadow-sm" [formGroup]="form" (ngSubmit)="submit()">
+  <div class="card-body vstack gap-3">
+    <input class="form-control" formControlName="title" placeholder="Title" />
+    <textarea class="form-control" formControlName="description" placeholder="Description" rows="5"></textarea>
+    <input class="form-control" formControlName="priority" placeholder="Priority" />
+    <button class="btn btn-primary align-self-start" type="submit" [disabled]="form.invalid">Create</button>
+  </div>
+</form>
