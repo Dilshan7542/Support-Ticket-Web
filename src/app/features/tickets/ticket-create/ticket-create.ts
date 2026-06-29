@@ -16,7 +16,7 @@ export class TicketCreate {
   private readonly tokenStorage = inject(TokenStorageService);
 
   readonly form = this.formBuilder.nonNullable.group({
-    title: ['', Validators.required],
+    subject: ['', Validators.required],
     description: ['', Validators.required],
     priority: ['MEDIUM']
   });

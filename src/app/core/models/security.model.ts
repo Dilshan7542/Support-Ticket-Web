@@ -11,3 +11,12 @@ export interface KeyExchangeResponse {
   encryptionAlgorithm: string;
   expiresAt: string;
 }
+
+export interface KeyExchangeSession extends KeyExchangeResponse {
+  aesKey?: CryptoKey;
+}
+
+export interface EncryptedPayload {
+  iv: string;
+  cipherText: string;
+}

@@ -19,7 +19,7 @@ export class DepartmentList implements OnInit {
   readonly form = this.formBuilder.nonNullable.group({
     name: ['', Validators.required],
     description: [''],
-    active: [true]
+    status: ['ACTIVE', Validators.required]
   });
 
   ngOnInit(): void {
@@ -32,7 +32,7 @@ export class DepartmentList implements OnInit {
     }
 
     this.departmentService.create(this.form.getRawValue()).subscribe(() => {
-      this.form.reset({ name: '', description: '', active: true });
+      this.form.reset({ name: '', description: '', status: 'ACTIVE' });
       this.store.loadDepartments();
     });
   }

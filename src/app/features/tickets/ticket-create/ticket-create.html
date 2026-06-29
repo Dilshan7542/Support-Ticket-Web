@@ -5,7 +5,7 @@
 
 <form class="card border-0 shadow-sm" [formGroup]="form" (ngSubmit)="submit()">
   <div class="card-body vstack gap-3">
-    <input class="form-control" formControlName="title" placeholder="Title" />
+    <input class="form-control" formControlName="subject" placeholder="Subject" />
     <textarea class="form-control" formControlName="description" placeholder="Description" rows="5"></textarea>
     <input class="form-control" formControlName="priority" placeholder="Priority" />
     <button class="btn btn-primary align-self-start" type="submit" [disabled]="form.invalid">Create</button>

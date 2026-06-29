@@ -8,10 +8,11 @@
     <div class="card-body vstack gap-3">
       <input class="form-control" formControlName="name" placeholder="Department name" />
       <textarea class="form-control" formControlName="description" rows="5" placeholder="Description"></textarea>
-      <label class="form-check">
-        <input class="form-check-input" type="checkbox" formControlName="active" />
-        <span class="form-check-label">Active</span>
-      </label>
+      <select class="form-select" formControlName="status">
+        <option value="ACTIVE">Active</option>
+        <option value="INACTIVE">Inactive</option>
+        <option value="DELETED">Deleted</option>
+      </select>
 
       <div class="d-flex gap-2">
         <button class="btn btn-primary" type="submit" [disabled]="form.invalid">Update</button>

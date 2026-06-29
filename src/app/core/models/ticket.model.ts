@@ -1,6 +1,14 @@
 export interface TicketAttachment {
   id: string | number;
   fileName: string;
+  ticketId?: string | number;
+  uploadedByUserId?: string | number;
+  originalFileName?: string;
+  storedFileName?: string;
+  contentType?: string;
+  fileSize?: number;
+  storagePath?: string;
+  createdAt?: string;
 }
 
 export interface TicketReply {
@@ -12,13 +20,15 @@ export interface TicketReply {
 
 export interface Ticket {
   id: string | number;
-  title: string;
+  ticketNo?: string;
+  subject: string;
   description?: string;
+  category?: string | null;
   status: string;
   priority?: string;
-  departmentId?: string | number;
-  assignedTo?: string | number;
-  createdBy?: string | number;
+  customerId?: string | number;
+  departmentId?: string | number | null;
+  assignedStaffId?: string | number | null;
   createdAt?: string;
   updatedAt?: string;
   attachments?: TicketAttachment[];
@@ -26,9 +36,30 @@ export interface Ticket {
 }
 
 export interface CreateTicketRequest {
-  title: string;
+  subject: string;
   description: string;
+  category?: string;
   departmentId?: string | number;
   priority?: string;
   userId: string | number;
+}
+
+export interface UpdateTicketStatusRequest {
+  userId: string | number;
+  ticketId: string | number;
+  status: string;
+  remark?: string;
+}
+
+export interface AssignTicketRequest {
+  userId: string | number;
+  ticketId: string | number;
+  departmentId?: string | number;
+  assignedStaffId?: string | number | null;
+}
+
+export interface AddTicketReplyRequest {
+  userId: string | number;
+  ticketId: string | number;
+  message: string;
 }

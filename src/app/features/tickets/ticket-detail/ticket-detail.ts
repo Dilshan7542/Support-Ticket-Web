@@ -40,7 +40,7 @@ export class TicketDetail implements OnInit {
     const { status, assignedTo } = this.statusForm.getRawValue();
     this.ticketService.updateStatus(ticket.id, status).subscribe(() => {
       if (assignedTo.trim()) {
-        this.ticketService.assign(ticket.id, assignedTo.trim()).subscribe(() => this.loadTicket());
+        this.ticketService.assign(ticket.id, assignedTo.trim(), ticket.departmentId ?? undefined).subscribe(() => this.loadTicket());
         return;
       }
 
@@ -69,7 +69,7 @@ export class TicketDetail implements OnInit {
         this.ticket.set(ticket);
         this.statusForm.reset({
           status: ticket?.status ?? 'OPEN',
-          assignedTo: ticket?.assignedTo ? String(ticket.assignedTo) : ''
+          assignedTo: ticket?.assignedStaffId ? String(ticket.assignedStaffId) : ''
         });
       });
     }

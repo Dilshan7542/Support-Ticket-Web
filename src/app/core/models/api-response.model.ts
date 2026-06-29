@@ -4,6 +4,7 @@ export interface ApiResponse<T> {
   data: T;
   errors?: string[];
   traceId?: string;
+  timestamp?: string;
 }
 
 export interface ListRequest {

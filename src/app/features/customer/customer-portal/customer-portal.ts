@@ -22,7 +22,7 @@ export class CustomerPortal implements OnInit {
   readonly created = signal(false);
 
   readonly form = this.formBuilder.nonNullable.group({
-    title: ['', Validators.required],
+    subject: ['', Validators.required],
     description: ['', Validators.required],
     priority: ['MEDIUM', Validators.required]
   });
@@ -42,7 +42,7 @@ export class CustomerPortal implements OnInit {
       ...this.form.getRawValue(),
       userId: this.customer()
     }).subscribe(() => {
-      this.form.reset({ title: '', description: '', priority: 'MEDIUM' });
+      this.form.reset({ subject: '', description: '', priority: 'MEDIUM' });
       this.created.set(true);
       this.loadTickets();
     });
@@ -56,7 +56,7 @@ export class CustomerPortal implements OnInit {
 
   private loadTickets(): void {
     this.ticketService.list().subscribe((tickets) => {
-      this.tickets.set(tickets.filter((ticket) => ticket.createdBy === this.customer()));
+      this.tickets.set(tickets.filter((ticket) => String(ticket.customerId ?? '') === this.customer()));
     });
   }
 }

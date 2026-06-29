@@ -9,6 +9,6 @@ export class HealthService {
   private readonly api = inject(ApiClientService);
 
   status(): Observable<unknown> {
-    return this.api.getRaw<unknown>(API_ENDPOINTS.health.status);
+    return this.api.post<unknown>(API_ENDPOINTS.health.status, {});
   }
 }

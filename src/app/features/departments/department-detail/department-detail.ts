@@ -21,7 +21,7 @@ export class DepartmentDetail implements OnInit {
   readonly form = this.formBuilder.nonNullable.group({
     name: ['', Validators.required],
     description: [''],
-    active: [true]
+    status: ['ACTIVE', Validators.required]
   });
 
   ngOnInit(): void {
@@ -60,7 +60,7 @@ export class DepartmentDetail implements OnInit {
         this.form.reset({
           name: department.name,
           description: department.description ?? '',
-          active: department.active ?? true
+          status: department.status ?? 'ACTIVE'
         });
       });
     }

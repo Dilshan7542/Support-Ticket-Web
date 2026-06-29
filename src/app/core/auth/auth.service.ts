@@ -20,21 +20,23 @@ export class AuthService {
     );
   }
 
-  register(request: RegisterRequest): Observable<AuthTokens> {
+  register(request: RegisterRequest): Observable<number> {
     return this.keyExchangeService.ensureKeyExchange().pipe(
-      switchMap(() => this.api.post<AuthTokens, RegisterRequest>(API_ENDPOINTS.auth.register, request)),
-      tap((tokens) => this.tokenStorage.save(tokens))
+      switchMap(() => this.api.post<number, RegisterRequest>(API_ENDPOINTS.auth.register, request))
     );
   }
 
   refreshToken(): Observable<AuthTokens> {
     return this.api.post<AuthTokens>(API_ENDPOINTS.auth.refreshToken, {
+      userId: this.tokenStorage.getUserId(),
       refreshToken: this.tokenStorage.getRefreshToken()
     }).pipe(tap((tokens) => this.tokenStorage.save(tokens)));
   }
 
   logout(): Observable<void> {
-    return this.api.post<void>(API_ENDPOINTS.auth.logout, {}).pipe(
+    return this.api.post<void>(API_ENDPOINTS.auth.logout, {
+      userId: this.tokenStorage.getUserId()
+    }).pipe(
       tap(() => this.tokenStorage.clear())
     );
   }

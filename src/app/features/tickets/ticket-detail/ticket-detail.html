@@ -9,8 +9,8 @@
       <div class="card-body">
         <div class="d-flex justify-content-between gap-3 mb-3">
           <div>
-            <h3 class="h5 mb-1">{{ selectedTicket.title }}</h3>
-            <p class="app-muted mb-0">Customer: {{ selectedTicket.createdBy || 'Unknown' }}</p>
+            <h3 class="h5 mb-1">{{ selectedTicket.subject }}</h3>
+            <p class="app-muted mb-0">Customer: {{ selectedTicket.customerId || 'Unknown' }}</p>
           </div>
           <span class="badge text-bg-secondary align-self-start">{{ selectedTicket.status }}</span>
         </div>
@@ -20,7 +20,7 @@
           <dt class="col-sm-3">Priority</dt>
           <dd class="col-sm-9">{{ selectedTicket.priority || 'MEDIUM' }}</dd>
           <dt class="col-sm-3">Assigned to</dt>
-          <dd class="col-sm-9">{{ selectedTicket.assignedTo || 'Unassigned' }}</dd>
+          <dd class="col-sm-9">{{ selectedTicket.assignedStaffId || 'Unassigned' }}</dd>
           <dt class="col-sm-3">Created</dt>
           <dd class="col-sm-9">{{ selectedTicket.createdAt | date:'medium' }}</dd>
         </dl>
@@ -38,7 +38,7 @@
             <option value="RESOLVED">Resolved</option>
             <option value="CLOSED">Closed</option>
           </select>
-          <input class="form-control" formControlName="assignedTo" placeholder="Assign to" />
+          <input class="form-control" formControlName="assignedTo" placeholder="Assigned staff id" />
           <button class="btn btn-primary" type="submit">Update complaint</button>
         </div>
       </form>

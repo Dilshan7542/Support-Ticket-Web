@@ -14,10 +14,10 @@ export class Dashboard implements OnInit {
   readonly store = inject(DashboardStore);
 
   readonly tickets = signal<Ticket[]>([]);
-  readonly total = computed(() => Number(this.store.summary()?.['totalTickets'] ?? 0));
-  readonly open = computed(() => Number(this.store.summary()?.['openTickets'] ?? this.store.summary()?.['pendingTickets'] ?? 0));
-  readonly resolved = computed(() => Number(this.store.summary()?.['resolvedTickets'] ?? 0));
-  readonly closed = computed(() => Number(this.store.summary()?.['closedTickets'] ?? 0));
+  readonly total = computed(() => Number(this.store.summary()?.cardMetrics?.totalTickets ?? 0));
+  readonly open = computed(() => Number(this.store.summary()?.cardMetrics?.openTickets ?? 0));
+  readonly resolved = computed(() => Number(this.store.summary()?.cardMetrics?.resolvedTickets ?? 0));
+  readonly closed = computed(() => Number(this.store.summary()?.cardMetrics?.closedTickets ?? 0));
 
   ngOnInit(): void {
     this.store.loadSummary();

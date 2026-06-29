@@ -6,7 +6,15 @@ import { TokenStorageService } from '../../core/auth/token-storage.service';
 import { API_ENDPOINTS } from '../../core/constants/api-endpoints';
 import { ApiClientService } from '../../core/http/api-client.service';
 import { DetailRequest, ListRequest } from '../../core/models/api-response.model';
-import { CreateTicketRequest, Ticket, TicketAttachment, TicketReply } from '../../core/models/ticket.model';
+import {
+  AddTicketReplyRequest,
+  AssignTicketRequest,
+  CreateTicketRequest,
+  Ticket,
+  TicketAttachment,
+  TicketReply,
+  UpdateTicketStatusRequest
+} from '../../core/models/ticket.model';
 
 @Injectable({ providedIn: 'root' })
 export class TicketService {
@@ -18,27 +26,49 @@ export class TicketService {
   }
 
   list(request: ListRequest = {}): Observable<Ticket[]> {
-    return this.api.post<Ticket[], ListRequest>(API_ENDPOINTS.tickets.list, request);
-  }
-
-  detail(request: DetailRequest): Observable<Ticket> {
-    return this.api.post<Ticket, DetailRequest>(API_ENDPOINTS.tickets.detail, request);
-  }
-
-  updateStatus(ticketId: string | number, status: string): Observable<Ticket> {
-    return this.api.post<Ticket>(API_ENDPOINTS.tickets.updateStatus, { ticketId, status });
-  }
-
-  addReply(ticketId: string | number, message: string): Observable<TicketReply> {
-    return this.api.post<TicketReply>(API_ENDPOINTS.tickets.addReply, {
-      ticketId,
-      message,
-      userId: this.tokenStorage.getUserId()
+    return this.api.post<Ticket[], ListRequest>(API_ENDPOINTS.tickets.list, {
+      userId: this.tokenStorage.getUserId(),
+      ...request
     });
   }
 
-  assign(ticketId: string | number, assigneeId: string | number): Observable<Ticket> {
-    return this.api.post<Ticket>(API_ENDPOINTS.tickets.assign, { ticketId, assigneeId });
+  detail(request: DetailRequest): Observable<Ticket> {
+    return this.api.post<Ticket>(API_ENDPOINTS.tickets.detail, {
+      userId: this.tokenStorage.getUserId(),
+      ticketId: request.id
+    });
+  }
+
+  updateStatus(ticketId: string | number, status: string, remark = ''): Observable<Ticket> {
+    const request: UpdateTicketStatusRequest = {
+      userId: this.tokenStorage.getUserId() ?? '',
+      ticketId,
+      status,
+      remark
+    };
+
+    return this.api.post<Ticket, UpdateTicketStatusRequest>(API_ENDPOINTS.tickets.updateStatus, request);
+  }
+
+  addReply(ticketId: string | number, message: string): Observable<number> {
+    const request: AddTicketReplyRequest = {
+      userId: this.tokenStorage.getUserId() ?? '',
+      ticketId,
+      message
+    };
+
+    return this.api.post<number, AddTicketReplyRequest>(API_ENDPOINTS.tickets.addReply, request);
+  }
+
+  assign(ticketId: string | number, assignedStaffId: string | number | null, departmentId?: string | number): Observable<Ticket> {
+    const request: AssignTicketRequest = {
+      userId: this.tokenStorage.getUserId() ?? '',
+      ticketId,
+      departmentId,
+      assignedStaffId
+    };
+
+    return this.api.post<Ticket, AssignTicketRequest>(API_ENDPOINTS.tickets.assign, request);
   }
 
   uploadAttachment(file: File, ticketId?: string | number): Observable<TicketAttachment> {

@@ -32,7 +32,7 @@
             <p class="app-muted mb-0">Describe the issue clearly so support can respond.</p>
           </div>
 
-          <input class="form-control" formControlName="title" placeholder="Complaint title" />
+          <input class="form-control" formControlName="subject" placeholder="Complaint subject" />
           <textarea class="form-control" formControlName="description" rows="6" placeholder="Complaint details"></textarea>
           <select class="form-select" formControlName="priority">
             <option value="LOW">Low priority</option>
@@ -57,7 +57,7 @@
               <article class="complaint-row border rounded p-3">
                 <div class="d-flex justify-content-between gap-3">
                   <div>
-                    <h3 class="h6 mb-1">{{ ticket.title }}</h3>
+                    <h3 class="h6 mb-1">{{ ticket.subject }}</h3>
                     <p class="app-muted mb-2">{{ ticket.description }}</p>
                     <small class="app-muted">{{ ticket.createdAt | date:'medium' }}</small>
                   </div>

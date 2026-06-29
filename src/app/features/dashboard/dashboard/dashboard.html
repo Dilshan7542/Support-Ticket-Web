@@ -45,8 +45,8 @@
       @for (ticket of tickets().slice(0, 5); track ticket.id) {
         <div class="list-group-item px-0 d-flex justify-content-between gap-3">
           <div>
-            <strong>{{ ticket.title }}</strong>
-            <div class="app-muted small">{{ ticket.createdBy || 'Unknown customer' }}</div>
+            <strong>{{ ticket.subject }}</strong>
+            <div class="app-muted small">{{ ticket.customerId || 'Unknown customer' }}</div>
           </div>
           <span class="badge text-bg-secondary align-self-center">{{ ticket.status }}</span>
         </div>
