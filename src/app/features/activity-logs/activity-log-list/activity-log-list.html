@@ -1,0 +1,12 @@
+<header class="mb-4">
+  <h2 class="h3 mb-1">Activity Logs</h2>
+  <p class="app-muted mb-0">Audit trail entries.</p>
+</header>
+
+<section class="list-group shadow-sm">
+  @for (log of store.logs(); track log.id) {
+    <a class="list-group-item list-group-item-action" [routerLink]="['/activity-logs', log.id]">{{ log.action }}</a>
+  } @empty {
+    <div class="list-group-item">No activity logs found.</div>
+  }
+</section>
