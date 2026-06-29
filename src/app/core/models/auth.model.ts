@@ -4,10 +4,11 @@ export interface LoginRequest {
 }
 
 export interface RegisterRequest {
-  name: string;
   username: string;
   password: string;
-  departmentId?: string | number;
+  fullName: string;
+  email: string;
+  phone?: string;
 }
 
 export interface AuthTokens {
@@ -15,6 +16,9 @@ export interface AuthTokens {
   refreshToken: string;
   userId: string | number;
   encryptionKeyId?: string;
+  username?: string;
+  fullName?: string;
+  role?: string;
 }
 
 export interface AuthUser {
