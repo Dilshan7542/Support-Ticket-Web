@@ -1,0 +1,46 @@
+.customer-shell {
+  background: var(--base-0);
+}
+
+.customer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  background: var(--neutral-100);
+}
+
+.customer-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 420px) minmax(0, 1fr);
+  gap: 1.5rem;
+  padding: 1.5rem;
+}
+
+.customer-empty {
+  max-width: 520px;
+  padding: 1.5rem;
+}
+
+.status-badge {
+  height: fit-content;
+  background: var(--primary-500);
+}
+
+.reply-box {
+  border-left: 3px solid var(--primary-500);
+  padding-left: 0.75rem;
+}
+
+@media (max-width: 820px) {
+  .customer-header,
+  .customer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .customer-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

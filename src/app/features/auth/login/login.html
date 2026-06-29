@@ -1,0 +1,18 @@
+<section class="card shadow-sm border-0 w-100 auth-card">
+  <div class="card-body p-4">
+    <h2 class="h4 mb-1">Admin Login</h2>
+    <p class="app-muted mb-4">Use username and password to control complaints.</p>
+
+    <form class="vstack gap-3" [formGroup]="form" (ngSubmit)="submit()">
+      <input class="form-control" type="text" formControlName="username" placeholder="Username" />
+      <input class="form-control" type="password" formControlName="password" placeholder="Password" />
+      <button class="btn btn-primary" type="submit" [disabled]="form.invalid || store.loading()">Sign in as admin</button>
+    </form>
+
+    @if (store.error()) {
+      <div class="alert alert-danger mt-3 mb-0">{{ store.error() }}</div>
+    }
+
+    <a class="d-inline-block mt-3" routerLink="/auth/register">Customer side</a>
+  </div>
+</section>

@@ -1,0 +1,12 @@
+<header class="mb-4">
+  <h2 class="h3 mb-1">Departments</h2>
+  <p class="app-muted mb-0">Support team departments.</p>
+</header>
+
+<section class="list-group shadow-sm">
+  @for (department of store.departments(); track department.id) {
+    <a class="list-group-item list-group-item-action" [routerLink]="['/departments', department.id]">{{ department.name }}</a>
+  } @empty {
+    <div class="list-group-item">No departments found.</div>
+  }
+</section>

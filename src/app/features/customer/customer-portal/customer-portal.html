@@ -1,0 +1,82 @@
+<main class="customer-shell app-surface min-vh-100">
+  <header class="customer-header border-bottom">
+    <div>
+      <h1 class="h3 mb-1">Customer Support</h1>
+      <p class="app-muted mb-0">Submit complaints and check current status.</p>
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+      @if (customer()) {
+        <span class="badge text-bg-light border">{{ customer() }}</span>
+        <button class="btn btn-outline-secondary btn-sm" type="button" (click)="logout()">Switch user</button>
+      }
+      <a class="btn btn-outline-primary btn-sm" routerLink="/auth/login">Admin</a>
+    </div>
+  </header>
+
+  @if (!customer()) {
+    <section class="customer-empty">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+          <h2 class="h5 mb-3">Customer login required</h2>
+          <a class="btn btn-primary" routerLink="/auth/register">Enter email or username</a>
+        </div>
+      </div>
+    </section>
+  } @else {
+    <section class="customer-grid">
+      <form class="card border-0 shadow-sm" [formGroup]="form" (ngSubmit)="submit()">
+        <div class="card-body vstack gap-3">
+          <div>
+            <h2 class="h5 mb-1">New Complaint</h2>
+            <p class="app-muted mb-0">Describe the issue clearly so support can respond.</p>
+          </div>
+
+          <input class="form-control" formControlName="title" placeholder="Complaint title" />
+          <textarea class="form-control" formControlName="description" rows="6" placeholder="Complaint details"></textarea>
+          <select class="form-select" formControlName="priority">
+            <option value="LOW">Low priority</option>
+            <option value="MEDIUM">Medium priority</option>
+            <option value="HIGH">High priority</option>
+          </select>
+
+          <button class="btn btn-primary align-self-start" type="submit" [disabled]="form.invalid">Submit complaint</button>
+
+          @if (created()) {
+            <div class="alert alert-success mb-0">Complaint submitted.</div>
+          }
+        </div>
+      </form>
+
+      <section class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h2 class="h5 mb-3">My Complaints</h2>
+
+          <div class="vstack gap-3">
+            @for (ticket of tickets(); track ticket.id) {
+              <article class="complaint-row border rounded p-3">
+                <div class="d-flex justify-content-between gap-3">
+                  <div>
+                    <h3 class="h6 mb-1">{{ ticket.title }}</h3>
+                    <p class="app-muted mb-2">{{ ticket.description }}</p>
+                    <small class="app-muted">{{ ticket.createdAt | date:'medium' }}</small>
+                  </div>
+                  <span class="badge status-badge">{{ ticket.status }}</span>
+                </div>
+
+                @if (ticket.replies?.length) {
+                  <div class="reply-box mt-3">
+                    <strong>Admin reply</strong>
+                    <p class="mb-0">{{ ticket.replies?.[ticket.replies.length - 1]?.message }}</p>
+                  </div>
+                }
+              </article>
+            } @empty {
+              <p class="app-muted mb-0">No complaints submitted yet.</p>
+            }
+          </div>
+        </div>
+      </section>
+    </section>
+  }
+</main>
