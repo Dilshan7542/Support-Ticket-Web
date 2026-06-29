@@ -1,0 +1,33 @@
+@use "../public/assets/style/variables";
+@use "../public/assets/style/colors/colors";
+@use "../public/assets/style/colors/bg-color";
+
+@use "bootstrap/scss/bootstrap";
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--primary-font-face), system-ui, sans-serif;
+  background: var(--base-0);
+  color: var(--base-1000);
+}
+
+.btn-primary {
+  --bs-btn-bg: var(--primary-500);
+  --bs-btn-border-color: var(--primary-500);
+  --bs-btn-hover-bg: var(--primary-400);
+  --bs-btn-hover-border-color: var(--primary-400);
+}
+
+.app-surface {
+  background: var(--base-0);
+  color: var(--base-1000);
+}
+
+.app-muted {
+  color: var(--neutral-500);
+}
