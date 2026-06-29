@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { HttpResponse } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 import { TokenStorageService } from '../../core/auth/token-storage.service';
 import { API_ENDPOINTS } from '../../core/constants/api-endpoints';
@@ -11,54 +12,33 @@ import { CreateTicketRequest, Ticket, TicketAttachment, TicketReply } from '../.
 export class TicketService {
   private readonly api = inject(ApiClientService);
   private readonly tokenStorage = inject(TokenStorageService);
-  private readonly storageKey = 'support_ticket_demo_tickets';
 
   create(request: CreateTicketRequest): Observable<Ticket> {
-    const tickets = this.readTickets();
-    const ticket: Ticket = {
-      id: crypto.randomUUID(),
-      title: request.title,
-      description: request.description,
-      priority: request.priority ?? 'MEDIUM',
-      departmentId: request.departmentId,
-      createdBy: request.userId,
-      status: 'OPEN',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      replies: []
-    };
-
-    this.writeTickets([ticket, ...tickets]);
-    return of(ticket);
+    return this.api.post<Ticket, CreateTicketRequest>(API_ENDPOINTS.tickets.create, request);
   }
 
   list(request: ListRequest = {}): Observable<Ticket[]> {
-    return of(this.readTickets());
+    return this.api.post<Ticket[], ListRequest>(API_ENDPOINTS.tickets.list, request);
   }
 
   detail(request: DetailRequest): Observable<Ticket> {
-    const ticket = this.readTickets().find((item) => String(item.id) === String(request.id));
-    return of(ticket as Ticket);
+    return this.api.post<Ticket, DetailRequest>(API_ENDPOINTS.tickets.detail, request);
   }
 
   updateStatus(ticketId: string | number, status: string): Observable<Ticket> {
-    return of(this.updateTicket(ticketId, { status }));
+    return this.api.post<Ticket>(API_ENDPOINTS.tickets.updateStatus, { ticketId, status });
   }
 
   addReply(ticketId: string | number, message: string): Observable<TicketReply> {
-    const reply: TicketReply = {
-      id: crypto.randomUUID(),
+    return this.api.post<TicketReply>(API_ENDPOINTS.tickets.addReply, {
+      ticketId,
       message,
-      userId: this.tokenStorage.getUserId() ?? 'admin',
-      createdAt: new Date().toISOString()
-    };
-    const ticket = this.readTickets().find((item) => String(item.id) === String(ticketId));
-    this.updateTicket(ticketId, { replies: [...(ticket?.replies ?? []), reply] });
-    return of(reply);
+      userId: this.tokenStorage.getUserId()
+    });
   }
 
   assign(ticketId: string | number, assigneeId: string | number): Observable<Ticket> {
-    return of(this.updateTicket(ticketId, { assignedTo: assigneeId }));
+    return this.api.post<Ticket>(API_ENDPOINTS.tickets.assign, { ticketId, assigneeId });
   }
 
   uploadAttachment(file: File, ticketId?: string | number): Observable<TicketAttachment> {
@@ -77,30 +57,7 @@ export class TicketService {
     return this.api.download(API_ENDPOINTS.tickets.downloadAttachment, { id: attachmentId });
   }
 
-  private readTickets(): Ticket[] {
-    const rawTickets = localStorage.getItem(this.storageKey);
-    return rawTickets ? JSON.parse(rawTickets) as Ticket[] : [];
-  }
-
-  private writeTickets(tickets: Ticket[]): void {
-    localStorage.setItem(this.storageKey, JSON.stringify(tickets));
-  }
-
-  private updateTicket(ticketId: string | number, changes: Partial<Ticket>): Ticket {
-    const tickets = this.readTickets();
-    const updatedTickets = tickets.map((ticket) => {
-      if (String(ticket.id) !== String(ticketId)) {
-        return ticket;
-      }
-
-      return {
-        ...ticket,
-        ...changes,
-        updatedAt: new Date().toISOString()
-      };
-    });
-
-    this.writeTickets(updatedTickets);
-    return updatedTickets.find((ticket) => String(ticket.id) === String(ticketId)) as Ticket;
+  downloadAttachmentResponse(attachmentId: string | number): Observable<HttpResponse<Blob>> {
+    return this.api.downloadResponse(API_ENDPOINTS.tickets.downloadAttachment, { id: attachmentId });
   }
 }

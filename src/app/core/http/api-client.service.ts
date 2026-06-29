@@ -1,4 +1,4 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 
@@ -22,6 +22,10 @@ export class ApiClientService {
       .pipe(map((response) => response.data));
   }
 
+  getRaw<TResponse>(path: string, params?: Record<string, string | number | boolean>): Observable<TResponse> {
+    return this.http.get<TResponse>(`${this.baseUrl}${path}`, { params: this.toParams(params) });
+  }
+
   upload<TResponse>(path: string, formData: FormData): Observable<TResponse> {
     return this.http
       .post<ApiResponse<TResponse>>(`${this.baseUrl}${path}`, formData)
@@ -30,6 +34,14 @@ export class ApiClientService {
 
   download(path: string, params: Record<string, string | number | boolean>): Observable<Blob> {
     return this.http.get(`${this.baseUrl}${path}`, {
+      params: this.toParams(params),
+      responseType: 'blob'
+    });
+  }
+
+  downloadResponse(path: string, params: Record<string, string | number | boolean>): Observable<HttpResponse<Blob>> {
+    return this.http.get(`${this.baseUrl}${path}`, {
+      observe: 'response',
       params: this.toParams(params),
       responseType: 'blob'
     });

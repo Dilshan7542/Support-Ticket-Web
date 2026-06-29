@@ -1,7 +1,8 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 
 import { Ticket } from '../../../core/models/ticket.model';
 import { TicketService } from '../../tickets/ticket.service';
+import { DashboardStore } from '../state/dashboard.store';
 
 @Component({
   selector: 'app-dashboard',
@@ -10,20 +11,16 @@ import { TicketService } from '../../tickets/ticket.service';
 })
 export class Dashboard implements OnInit {
   private readonly ticketService = inject(TicketService);
+  readonly store = inject(DashboardStore);
 
   readonly tickets = signal<Ticket[]>([]);
-  readonly total = signal(0);
-  readonly open = signal(0);
-  readonly resolved = signal(0);
-  readonly closed = signal(0);
+  readonly total = computed(() => Number(this.store.summary()?.['totalTickets'] ?? 0));
+  readonly open = computed(() => Number(this.store.summary()?.['openTickets'] ?? this.store.summary()?.['pendingTickets'] ?? 0));
+  readonly resolved = computed(() => Number(this.store.summary()?.['resolvedTickets'] ?? 0));
+  readonly closed = computed(() => Number(this.store.summary()?.['closedTickets'] ?? 0));
 
   ngOnInit(): void {
-    this.ticketService.list().subscribe((tickets) => {
-      this.tickets.set(tickets);
-      this.total.set(tickets.length);
-      this.open.set(tickets.filter((ticket) => ticket.status === 'OPEN' || ticket.status === 'IN_PROGRESS').length);
-      this.resolved.set(tickets.filter((ticket) => ticket.status === 'RESOLVED').length);
-      this.closed.set(tickets.filter((ticket) => ticket.status === 'CLOSED').length);
-    });
+    this.store.loadSummary();
+    this.ticketService.list().subscribe((tickets) => this.tickets.set(tickets));
   }
 }
