@@ -14,6 +14,7 @@ export interface AuthTokens {
   accessToken: string;
   refreshToken: string;
   userId: string | number;
+  encryptionKeyId?: string;
 }
 
 export interface AuthUser {

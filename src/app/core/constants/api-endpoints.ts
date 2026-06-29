@@ -5,6 +5,9 @@ export const API_ENDPOINTS = {
     refreshToken: '/api/v1/auth/refresh-token',
     logout: '/api/v1/auth/logout'
   },
+  security: {
+    keyExchange: '/api/v1/security/key-exchange'
+  },
   tickets: {
     create: '/api/v1/tickets/create',
     list: '/api/v1/tickets/list',
@@ -19,7 +22,8 @@ export const API_ENDPOINTS = {
     create: '/api/v1/departments/create',
     list: '/api/v1/departments/list',
     detail: '/api/v1/departments/detail',
-    update: '/api/v1/departments/update'
+    update: '/api/v1/departments/update',
+    delete: '/api/v1/departments/delete'
   },
   dashboard: {
     summary: '/api/v1/dashboard/summary'

@@ -25,4 +25,8 @@ export class DepartmentService {
   update(request: Partial<Department>): Observable<Department> {
     return this.api.post<Department, Partial<Department>>(API_ENDPOINTS.departments.update, request);
   }
+
+  delete(id: string | number): Observable<void> {
+    return this.api.post<void>(API_ENDPOINTS.departments.delete, { id });
+  }
 }
