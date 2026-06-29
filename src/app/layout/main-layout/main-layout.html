@@ -1,0 +1,27 @@
+<div class="min-vh-100 d-flex app-surface">
+  <aside class="sidebar border-end">
+    <div class="d-flex align-items-center gap-2 mb-4">
+      <img src="/assets/img/dlb-sweep-logo.webp" alt="Logo" class="brand-logo" />
+      <h1 class="h5 mb-0">Support Desk</h1>
+    </div>
+
+    <nav class="nav nav-pills flex-column gap-1">
+      <a class="nav-link" routerLink="/dashboard">Dashboard</a>
+      <a class="nav-link" routerLink="/tickets">Tickets</a>
+      <a class="nav-link" routerLink="/departments">Departments</a>
+      <a class="nav-link" routerLink="/activity-logs">Activity Logs</a>
+    </nav>
+  </aside>
+
+  <div class="flex-fill">
+    <header class="border-bottom px-4 py-3 d-flex justify-content-end">
+      <button type="button" class="btn btn-outline-secondary btn-sm" (click)="themeService.toggle()">
+        {{ themeService.isDark() ? 'Light mode' : 'Dark mode' }}
+      </button>
+    </header>
+
+    <main class="container-fluid p-4">
+      <router-outlet />
+    </main>
+  </div>
+</div>
