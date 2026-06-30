@@ -5,11 +5,12 @@ import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { cryptoInterceptor } from './core/interceptors/crypto.interceptor';
+import { devLoggingInterceptor } from './core/interceptors/dev-logging.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
-    provideHttpClient(withInterceptors([authInterceptor, cryptoInterceptor]))
+    provideHttpClient(withInterceptors([authInterceptor, devLoggingInterceptor, cryptoInterceptor]))
   ]
 };
