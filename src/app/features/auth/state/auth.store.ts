@@ -21,6 +21,7 @@ export class AuthStore {
   login(request: LoginRequest): void {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
+    console.log(request);
     this.authService.login(request).pipe(
       finalize(() => this.loadingSignal.set(false))
     ).subscribe({

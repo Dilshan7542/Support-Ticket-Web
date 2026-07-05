@@ -100,7 +100,6 @@ function decryptResponseEvent(
 
 function isEncryptionSessionExpired(error: unknown): boolean {
   return error instanceof HttpErrorResponse &&
-    error.status === 409 &&
     error.error?.data?.code === 'ENCRYPTION_SESSION_EXPIRED';
 }
 

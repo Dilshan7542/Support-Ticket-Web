@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, from, shareReplay, switchMap, tap } from 'rxjs';
+import { Observable, finalize, from, shareReplay, switchMap, tap } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { API_ENDPOINTS } from '../constants/api-endpoints';
@@ -19,6 +19,10 @@ export class KeyExchangeService {
   ensureKeyExchange(): Observable<KeyExchangeSession> {
     if (this.session) {
       return from(Promise.resolve(this.session));
+    }
+
+    if (this.keyExchangeRequest$) {
+      return this.keyExchangeRequest$;
     }
 
     const savedKeyId = this.tokenStorage.getEncryptionKeyId();
@@ -45,6 +49,9 @@ export class KeyExchangeService {
         this.session = session;
         this.tokenStorage.saveEncryptionKeyId(session.keyId);
       }),
+      finalize(() => {
+        this.keyExchangeRequest$ = undefined;
+      }),
       shareReplay(1)
     );
 
@@ -52,8 +59,11 @@ export class KeyExchangeService {
   }
 
   renewKeyExchange(): Observable<KeyExchangeSession> {
+    if (this.keyExchangeRequest$) {
+      return this.keyExchangeRequest$;
+    }
+
     this.session = undefined;
-    this.keyExchangeRequest$ = undefined;
     return this.ensureKeyExchange();
   }
 
@@ -68,7 +78,7 @@ export class KeyExchangeService {
         namedCurve: 'P-256'
       },
       true,
-      ['deriveKey']
+      ['deriveBits']
     );
     const publicKey = await crypto.subtle.exportKey('spki', keyPair.publicKey);
     return {
