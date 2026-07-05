@@ -13,7 +13,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
-    provideHttpClient(withInterceptors([authInterceptor, cryptoInterceptor, devLoggingInterceptor])),
+    provideHttpClient(withInterceptors([authInterceptor, devLoggingInterceptor, cryptoInterceptor])),
     provideAppInitializer(() => firstValueFrom(inject(KeyExchangeService).ensureKeyExchange()))
   ]
 };

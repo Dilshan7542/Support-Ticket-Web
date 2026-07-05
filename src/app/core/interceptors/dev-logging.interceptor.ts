@@ -5,9 +5,12 @@ import { environment } from '../../../environments/environment';
 
 const SENSITIVE_HEADERS = ['authorization', 'x-key-id'];
 const SENSITIVE_FIELDS = ['accessToken', 'refreshToken', 'password', 'confirmPassword', 'token'];
+const REQUEST_STYLE = 'color: #0d6efd; font-weight: 600';
+const RESPONSE_STYLE = 'color: #198754; font-weight: 600';
+const ERROR_STYLE = 'color: #dc3545; font-weight: 600';
 
 export const devLoggingInterceptor: HttpInterceptorFn = (request, next) => {
-  if (environment.production) {
+  if (environment.production || !environment.devHttpLoggingEnabled) {
     return next(request);
   }
 
@@ -22,7 +25,7 @@ export const devLoggingInterceptor: HttpInterceptorFn = (request, next) => {
     body: sanitizeBody(request.body)
   };
 
-  console.groupCollapsed(`[HTTP Request] ${request.method} ${request.urlWithParams}`);
+  console.groupCollapsed(`%c[HTTP Request] ${request.method} ${request.urlWithParams}`, REQUEST_STYLE);
   console.log(requestLog);
   console.groupEnd();
 
@@ -34,7 +37,10 @@ export const devLoggingInterceptor: HttpInterceptorFn = (request, next) => {
         }
 
         const elapsedMs = Math.round(performance.now() - startedAt);
-        console.groupCollapsed(`[HTTP Response] ${request.method} ${request.urlWithParams} ${event.status} ${elapsedMs}ms`);
+        console.groupCollapsed(
+          `%c[HTTP Response] ${request.method} ${request.urlWithParams} ${event.status} ${elapsedMs}ms`,
+          RESPONSE_STYLE
+        );
         console.log({
           status: event.status,
           statusText: event.statusText,
@@ -46,7 +52,10 @@ export const devLoggingInterceptor: HttpInterceptorFn = (request, next) => {
       error: (error: unknown) => {
         const elapsedMs = Math.round(performance.now() - startedAt);
         const status = error instanceof HttpErrorResponse ? error.status : 'ERROR';
-        console.groupCollapsed(`[HTTP Error] ${request.method} ${request.urlWithParams} ${status} ${elapsedMs}ms`);
+        console.groupCollapsed(
+          `%c[HTTP Error] ${request.method} ${request.urlWithParams} ${status} ${elapsedMs}ms`,
+          ERROR_STYLE
+        );
         console.error(sanitizeBody(error));
         console.groupEnd();
       }
