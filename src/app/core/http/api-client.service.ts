@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
-import { ApiResponse } from '../models/api-response.model';
+import { ApiBusinessError, ApiResponse } from '../models/api-response.model';
 
 @Injectable({ providedIn: 'root' })
 export class ApiClientService {
@@ -13,13 +13,13 @@ export class ApiClientService {
   post<TResponse, TRequest = unknown>(path: string, body?: TRequest): Observable<TResponse> {
     return this.http
       .post<ApiResponse<TResponse>>(`${this.baseUrl}${path}`, body ?? {})
-      .pipe(map((response) => response.data));
+      .pipe(map((response) => this.unwrapResponse(response)));
   }
 
   get<TResponse>(path: string, params?: Record<string, string | number | boolean>): Observable<TResponse> {
     return this.http
       .get<ApiResponse<TResponse>>(`${this.baseUrl}${path}`, { params: this.toParams(params) })
-      .pipe(map((response) => response.data));
+      .pipe(map((response) => this.unwrapResponse(response)));
   }
 
   getRaw<TResponse>(path: string, params?: Record<string, string | number | boolean>): Observable<TResponse> {
@@ -29,7 +29,7 @@ export class ApiClientService {
   upload<TResponse>(path: string, formData: FormData): Observable<TResponse> {
     return this.http
       .post<ApiResponse<TResponse>>(`${this.baseUrl}${path}`, formData)
-      .pipe(map((response) => response.data));
+      .pipe(map((response) => this.unwrapResponse(response)));
   }
 
   download(path: string, params: Record<string, string | number | boolean>): Observable<Blob> {
@@ -53,5 +53,13 @@ export class ApiClientService {
       httpParams = httpParams.set(key, String(value));
     });
     return httpParams;
+  }
+
+  private unwrapResponse<TResponse>(response: ApiResponse<TResponse>): TResponse {
+    if (!response.success || response.statusCode === '01') {
+      throw new ApiBusinessError(response.message ?? 'Request failed', response as ApiResponse<unknown>);
+    }
+
+    return response.data;
   }
 }

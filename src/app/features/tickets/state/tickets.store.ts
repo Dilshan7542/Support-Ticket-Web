@@ -1,7 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { finalize } from 'rxjs';
 
-import { ListRequest } from '../../../core/models/api-response.model';
+import { getApiErrorMessage, ListRequest } from '../../../core/models/api-response.model';
 import { Ticket } from '../../../core/models/ticket.model';
 import { TicketService } from '../ticket.service';
 
@@ -27,7 +27,7 @@ export class TicketsStore {
       finalize(() => this.loadingSignal.set(false))
     ).subscribe({
       next: (tickets) => this.ticketsSignal.set(tickets),
-      error: () => this.errorSignal.set('Unable to load tickets')
+      error: (error) => this.errorSignal.set(getApiErrorMessage(error, 'Unable to load tickets'))
     });
   }
 
@@ -39,7 +39,7 @@ export class TicketsStore {
       finalize(() => this.loadingSignal.set(false))
     ).subscribe({
       next: (ticket) => this.selectedTicketSignal.set(ticket),
-      error: () => this.errorSignal.set('Unable to load ticket')
+      error: (error) => this.errorSignal.set(getApiErrorMessage(error, 'Unable to load ticket'))
     });
   }
 }

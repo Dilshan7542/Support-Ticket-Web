@@ -4,6 +4,7 @@ import { finalize } from 'rxjs';
 
 import { AuthService } from '../../../core/auth/auth.service';
 import { TokenStorageService } from '../../../core/auth/token-storage.service';
+import { getApiErrorMessage } from '../../../core/models/api-response.model';
 import { LoginRequest, RegisterRequest } from '../../../core/models/auth.model';
 
 @Injectable({ providedIn: 'root' })
@@ -21,12 +22,11 @@ export class AuthStore {
   login(request: LoginRequest): void {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
-    console.log(request);
     this.authService.login(request).pipe(
       finalize(() => this.loadingSignal.set(false))
     ).subscribe({
       next: () => this.router.navigateByUrl('/dashboard'),
-      error: () => this.errorSignal.set('Invalid username or password')
+      error: (error) => this.errorSignal.set(getApiErrorMessage(error, 'Invalid username or password'))
     });
   }
 
@@ -36,7 +36,7 @@ export class AuthStore {
     this.authService.register(request).pipe(
       finalize(() => this.loadingSignal.set(false))
     ).subscribe({
-      error: () => this.errorSignal.set('Unable to register account')
+      error: (error) => this.errorSignal.set(getApiErrorMessage(error, 'Unable to register account'))
     });
   }
 }
