@@ -1,0 +1,39 @@
+<header class="mb-4">
+  <h2 class="h3 mb-1">Company Detail</h2>
+  <p class="app-muted mb-0">Update company identity and status.</p>
+</header>
+
+@if (company()) {
+  <form class="card border-0 shadow-sm" [formGroup]="form" (ngSubmit)="update()">
+    <div class="card-body vstack gap-3">
+      @if (error()) {
+        <div class="alert alert-danger mb-0">{{ error() }}</div>
+      }
+      @if (message()) {
+        <div class="alert alert-success mb-0">{{ message() }}</div>
+      }
+      <input class="form-control" formControlName="name" placeholder="Company name" />
+      <input class="form-control" formControlName="code" placeholder="Company code" />
+      <textarea class="form-control" formControlName="description" rows="5" placeholder="Description"></textarea>
+      <select class="form-select" formControlName="status">
+        <option value="ACTIVE">Active</option>
+        <option value="INACTIVE">Inactive</option>
+        <option value="DELETED">Deleted</option>
+      </select>
+      <div class="d-flex gap-2">
+        <button class="btn btn-primary" type="submit" [disabled]="form.invalid">Update</button>
+        <a class="btn btn-outline-secondary" routerLink="/companies">Back</a>
+      </div>
+    </div>
+  </form>
+} @else {
+  <section class="card border-0 shadow-sm">
+    <div class="card-body">
+      @if (error()) {
+        <div class="alert alert-danger mb-0">{{ error() }}</div>
+      } @else {
+        Company not found.
+      }
+    </div>
+  </section>
+}

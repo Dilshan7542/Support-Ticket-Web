@@ -1,0 +1,36 @@
+<header class="mb-4">
+  <h2 class="h3 mb-1">Companies</h2>
+  <p class="app-muted mb-0">Create and maintain customer company records.</p>
+</header>
+
+<section class="company-grid">
+  <form class="card border-0 shadow-sm" [formGroup]="form" (ngSubmit)="create()">
+    <div class="card-body vstack gap-3">
+      <h3 class="h5 mb-0">Add Company</h3>
+      @if (error()) {
+        <div class="alert alert-danger mb-0">{{ error() }}</div>
+      }
+      @if (message()) {
+        <div class="alert alert-success mb-0">{{ message() }}</div>
+      }
+      <input class="form-control" formControlName="name" placeholder="Company name" />
+      <input class="form-control" formControlName="code" placeholder="Company code" />
+      <textarea class="form-control" formControlName="description" rows="4" placeholder="Description"></textarea>
+      <button class="btn btn-primary align-self-start" type="submit" [disabled]="form.invalid">Create</button>
+    </div>
+  </form>
+
+  <div class="list-group shadow-sm">
+    @for (company of companies(); track company.id) {
+      <a class="list-group-item list-group-item-action d-flex align-items-center justify-content-between gap-3" [routerLink]="['/companies', company.id]">
+        <div>
+          <strong>{{ company.name }}</strong>
+          <div class="app-muted small">{{ company.code }} | {{ company.status || 'ACTIVE' }}</div>
+          <div class="app-muted small">{{ company.description || 'No description' }}</div>
+        </div>
+      </a>
+    } @empty {
+      <div class="list-group-item">{{ loading() ? 'Loading companies...' : 'No companies found.' }}</div>
+    }
+  </div>
+</section>

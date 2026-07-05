@@ -1,0 +1,11 @@
+.company-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 360px) 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .company-grid {
+    grid-template-columns: 1fr;
+  }
+}
