@@ -1,12 +1,27 @@
 <header class="mb-4">
   <h2 class="h3 mb-1">Activity Logs</h2>
-  <p class="app-muted mb-0">Audit trail entries.</p>
+  <p class="app-muted mb-0">Audit trail entries, 20 rows per page.</p>
 </header>
 
 <section class="list-group shadow-sm">
-  @for (log of store.logs(); track log.id) {
-    <a class="list-group-item list-group-item-action" [routerLink]="['/activity-logs', log.id]">{{ log.action }}</a>
+  @for (log of pageLogs(); track log.id) {
+    <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-start gap-3" [routerLink]="['/activity-logs', log.id]">
+      <div>
+        <strong>{{ log.action }}</strong>
+        <div class="app-muted small">{{ log.httpMethod || 'METHOD' }} {{ log.endpoint || 'Unknown endpoint' }}</div>
+        <div class="app-muted small">{{ log.createdAt ? (log.createdAt | date:'medium') : 'Unknown time' }}</div>
+      </div>
+      <span class="badge text-bg-secondary">{{ log.responseStatus || 'N/A' }}</span>
+    </a>
   } @empty {
-    <div class="list-group-item">No activity logs found.</div>
+    <div class="list-group-item">{{ store.loading() ? 'Loading activity logs...' : 'No activity logs found.' }}</div>
   }
 </section>
+
+<div class="d-flex align-items-center justify-content-between gap-3 mt-3">
+  <span class="app-muted small">Page {{ currentPage() }} of {{ totalPages() }}</span>
+  <div class="btn-group">
+    <button class="btn btn-outline-secondary btn-sm" type="button" (click)="previousPage()" [disabled]="currentPage() === 1">Previous</button>
+    <button class="btn btn-outline-secondary btn-sm" type="button" (click)="nextPage()" [disabled]="currentPage() === totalPages()">Next</button>
+  </div>
+</div>

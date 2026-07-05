@@ -36,7 +36,10 @@ export interface Ticket {
   status: string;
   priority?: string;
   customerId?: string | number;
+  companyId?: string | number | null;
+  companyName?: string | null;
   departmentId?: string | number | null;
+  departmentName?: string | null;
   assignedStaffId?: string | number | null;
   createdAt?: string;
   updatedAt?: string;

@@ -11,6 +11,7 @@
           <div>
             <h3 class="h5 mb-1">{{ selectedTicket.subject }}</h3>
             <p class="app-muted mb-0">Customer: {{ selectedTicket.customerId || 'Unknown' }}</p>
+            <p class="app-muted mb-0">Company: {{ selectedTicket.companyName || selectedTicket.companyId || 'No company' }}</p>
           </div>
           <span class="badge text-bg-secondary align-self-start">{{ selectedTicket.status }}</span>
         </div>
