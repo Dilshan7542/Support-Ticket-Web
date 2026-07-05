@@ -51,6 +51,12 @@ export class KeyExchangeService {
     return this.keyExchangeRequest$;
   }
 
+  renewKeyExchange(): Observable<KeyExchangeSession> {
+    this.session = undefined;
+    this.keyExchangeRequest$ = undefined;
+    return this.ensureKeyExchange();
+  }
+
   getCurrentKeyId(): string | null {
     return this.session?.keyId ?? this.tokenStorage.getEncryptionKeyId();
   }

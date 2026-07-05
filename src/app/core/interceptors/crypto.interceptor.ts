@@ -1,6 +1,13 @@
-import { HttpEvent, HttpHandlerFn, HttpInterceptorFn, HttpRequest, HttpResponse } from '@angular/common/http';
+import {
+  HttpErrorResponse,
+  HttpEvent,
+  HttpHandlerFn,
+  HttpInterceptorFn,
+  HttpRequest,
+  HttpResponse
+} from '@angular/common/http';
 import { inject } from '@angular/core';
-import { from, map, switchMap } from 'rxjs';
+import { Observable, catchError, from, map, switchMap, throwError } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { KeyExchangeSession } from '../models/security.model';
@@ -24,36 +31,56 @@ export const cryptoInterceptor: HttpInterceptorFn = (request, next) => {
   const cryptoService = inject(CryptoService);
   const keyExchangeService = inject(KeyExchangeService);
   const path = getPath(request.url);
+
+  return keyExchangeService.ensureKeyExchange().pipe(
+    switchMap((session) => sendEncryptedRequest(request, next, session, cryptoService, path)),
+    catchError((error) => {
+      if (!isEncryptionSessionExpired(error)) {
+        return throwError(() => error);
+      }
+
+      return keyExchangeService.renewKeyExchange().pipe(
+        switchMap((session) => sendEncryptedRequest(request, next, session, cryptoService, path))
+      );
+    })
+  );
+};
+
+function sendEncryptedRequest(
+  request: HttpRequest<unknown>,
+  next: HttpHandlerFn,
+  session: KeyExchangeSession,
+  cryptoService: CryptoService,
+  path: string
+): Observable<HttpEvent<unknown>> {
   const timestamp = new Date().toISOString();
   const nonce = crypto.randomUUID();
 
-  return keyExchangeService.ensureKeyExchange().pipe(
-    switchMap((session) => from(cryptoService.encryptJson(
-      session,
-      request.method,
-      path,
-      request.body ?? {},
-      timestamp,
-      nonce
-    )).pipe(
-      switchMap((encryptedBody) => {
-        const encryptedRequest = request.clone({
-          body: encryptedBody,
-          setHeaders: {
-            'Content-Type': 'application/json',
-            'X-Key-Id': session.keyId,
-            'X-Timestamp': timestamp,
-            'X-Nonce': nonce
-          }
-        });
+  return from(cryptoService.encryptJson(
+    session,
+    request.method,
+    path,
+    request.body ?? {},
+    timestamp,
+    nonce
+  )).pipe(
+    switchMap((encryptedBody) => {
+      const encryptedRequest = request.clone({
+        body: encryptedBody,
+        setHeaders: {
+          'Content-Type': 'application/json',
+          'X-Key-Id': session.keyId,
+          'X-Timestamp': timestamp,
+          'X-Nonce': nonce
+        }
+      });
 
-        return next(encryptedRequest).pipe(
-          switchMap((event) => decryptResponseEvent(event, session, cryptoService, timestamp, nonce))
-        );
-      })
-    ))
+      return next(encryptedRequest).pipe(
+        switchMap((event) => decryptResponseEvent(event, session, cryptoService, timestamp, nonce))
+      );
+    })
   );
-};
+}
 
 function decryptResponseEvent(
   event: HttpEvent<unknown>,
@@ -69,6 +96,12 @@ function decryptResponseEvent(
   return from(cryptoService.decryptJson(session, event.status, event.body, timestamp, nonce)).pipe(
     map((decryptedBody) => event.clone({ body: decryptedBody }))
   );
+}
+
+function isEncryptionSessionExpired(error: unknown): boolean {
+  return error instanceof HttpErrorResponse &&
+    error.status === 409 &&
+    error.error?.data?.code === 'ENCRYPTION_SESSION_EXPIRED';
 }
 
 function shouldSkip(request: HttpRequest<unknown>): boolean {
