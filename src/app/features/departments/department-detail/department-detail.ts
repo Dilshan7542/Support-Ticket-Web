@@ -2,8 +2,10 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
+import { Company } from '../../../core/models/company.model';
 import { getApiErrorMessage } from '../../../core/models/api-response.model';
 import { Department } from '../../../core/models/department.model';
+import { CompanyService } from '../../companies/company.service';
 import { DepartmentService } from '../department.service';
 
 @Component({
@@ -14,20 +16,25 @@ import { DepartmentService } from '../department.service';
 })
 export class DepartmentDetail implements OnInit {
   private readonly departmentService = inject(DepartmentService);
+  private readonly companyService = inject(CompanyService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly formBuilder = inject(FormBuilder);
 
   readonly department = signal<Department | null>(null);
+  readonly companies = signal<Company[]>([]);
   readonly error = signal<string | null>(null);
   readonly message = signal<string | null>(null);
   readonly form = this.formBuilder.nonNullable.group({
     name: ['', Validators.required],
+    code: ['', Validators.required],
+    companyId: [''],
     description: [''],
     status: ['ACTIVE', Validators.required]
   });
 
   ngOnInit(): void {
+    this.loadCompanies();
     this.loadDepartment();
   }
 
@@ -79,6 +86,8 @@ export class DepartmentDetail implements OnInit {
           this.department.set(department);
           this.form.reset({
             name: department.name,
+            code: department.code ?? '',
+            companyId: department.companyId ? String(department.companyId) : '',
             description: department.description ?? '',
             status: department.status ?? 'ACTIVE'
           });
@@ -86,5 +95,12 @@ export class DepartmentDetail implements OnInit {
         error: (error) => this.error.set(getApiErrorMessage(error, 'Unable to load department'))
       });
     }
+  }
+
+  private loadCompanies(): void {
+    this.companyService.list().subscribe({
+      next: (companies) => this.companies.set(companies),
+      error: (error) => this.error.set(getApiErrorMessage(error, 'Unable to load companies'))
+    });
   }
 }

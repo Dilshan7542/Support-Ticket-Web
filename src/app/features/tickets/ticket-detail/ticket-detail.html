@@ -55,6 +55,28 @@
 
   <section class="card border-0 shadow-sm mt-3">
     <div class="card-body">
+      <h3 class="h5 mb-3">Tracking</h3>
+      <div class="vstack gap-3">
+        @for (item of selectedTicket.tracking; track item.id) {
+          <div class="border-start border-3 ps-3">
+            <div class="d-flex justify-content-between gap-3">
+              <strong>{{ item.previousStatus || 'Created' }} -> {{ item.newStatus }}</strong>
+              <small class="app-muted">{{ item.createdAt | date:'medium' }}</small>
+            </div>
+            <div class="app-muted small">Changed by: {{ item.changedByUserId || 'System' }}</div>
+            @if (item.remark) {
+              <p class="mb-0">{{ item.remark }}</p>
+            }
+          </div>
+        } @empty {
+          <p class="app-muted mb-0">No tracking entries yet.</p>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="card border-0 shadow-sm mt-3">
+    <div class="card-body">
       <h3 class="h5 mb-3">Replies</h3>
       <div class="vstack gap-3">
         @for (reply of selectedTicket.replies; track reply.id) {

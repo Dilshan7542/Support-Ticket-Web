@@ -14,6 +14,13 @@
         <div class="alert alert-success mb-0">{{ message() }}</div>
       }
       <input class="form-control" formControlName="name" placeholder="Department name" />
+      <input class="form-control" formControlName="code" placeholder="Department code" />
+      <select class="form-select" formControlName="companyId">
+        <option value="">No company</option>
+        @for (company of companies(); track company.id) {
+          <option [value]="company.id">{{ company.name }} ({{ company.code }})</option>
+        }
+      </select>
       <textarea class="form-control" formControlName="description" rows="4" placeholder="Description"></textarea>
       <select class="form-select" formControlName="status">
         <option value="ACTIVE">Active</option>
@@ -28,7 +35,8 @@
       <a class="list-group-item list-group-item-action d-flex align-items-center justify-content-between gap-3" [routerLink]="['/departments', department.id]">
         <div>
           <strong>{{ department.name }}</strong>
-          <div class="app-muted small">{{ department.description || 'No description' }} | {{ department.status || 'ACTIVE' }}</div>
+          <div class="app-muted small">{{ department.code || 'NO-CODE' }} | {{ department.companyName || 'No company' }} | {{ department.status || 'ACTIVE' }}</div>
+          <div class="app-muted small">{{ department.description || 'No description' }}</div>
         </div>
         <button class="btn btn-outline-danger btn-sm" type="button" (click)="delete(department.id, $event)">Delete</button>
       </a>

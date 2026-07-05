@@ -15,7 +15,7 @@ export class DepartmentService {
   create(request: Partial<Department>): Observable<Department> {
     return this.api.post<Department>(API_ENDPOINTS.departments.create, {
       userId: this.tokenStorage.getUserId(),
-      ...request
+      ...this.normalizeDepartmentRequest(request)
     });
   }
 
@@ -38,7 +38,7 @@ export class DepartmentService {
     return this.api.post<Department>(API_ENDPOINTS.departments.update, {
       userId: this.tokenStorage.getUserId(),
       departmentId: id,
-      ...changes
+      ...this.normalizeDepartmentRequest(changes)
     });
   }
 
@@ -47,5 +47,12 @@ export class DepartmentService {
       userId: this.tokenStorage.getUserId(),
       departmentId: id
     });
+  }
+
+  private normalizeDepartmentRequest(request: Partial<Department>): Partial<Department> {
+    return {
+      ...request,
+      companyId: request.companyId || null
+    };
   }
 }

@@ -18,6 +18,15 @@ export interface TicketReply {
   createdAt?: string;
 }
 
+export interface TicketTrackingItem {
+  id: string | number;
+  previousStatus?: string | null;
+  newStatus: string;
+  changedByUserId?: string | number | null;
+  remark?: string | null;
+  createdAt?: string;
+}
+
 export interface Ticket {
   id: string | number;
   ticketNo?: string;
@@ -33,6 +42,7 @@ export interface Ticket {
   updatedAt?: string;
   attachments?: TicketAttachment[];
   replies?: TicketReply[];
+  tracking?: TicketTrackingItem[];
 }
 
 export interface CreateTicketRequest {

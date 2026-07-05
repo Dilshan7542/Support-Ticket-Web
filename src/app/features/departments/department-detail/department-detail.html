@@ -13,6 +13,13 @@
         <div class="alert alert-success mb-0">{{ message() }}</div>
       }
       <input class="form-control" formControlName="name" placeholder="Department name" />
+      <input class="form-control" formControlName="code" placeholder="Department code" />
+      <select class="form-select" formControlName="companyId">
+        <option value="">No company</option>
+        @for (company of companies(); track company.id) {
+          <option [value]="company.id">{{ company.name }} ({{ company.code }})</option>
+        }
+      </select>
       <textarea class="form-control" formControlName="description" rows="5" placeholder="Description"></textarea>
       <select class="form-select" formControlName="status">
         <option value="ACTIVE">Active</option>

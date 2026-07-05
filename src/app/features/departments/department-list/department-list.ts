@@ -2,7 +2,9 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
+import { Company } from '../../../core/models/company.model';
 import { getApiErrorMessage } from '../../../core/models/api-response.model';
+import { CompanyService } from '../../companies/company.service';
 import { DepartmentService } from '../department.service';
 import { DepartmentsStore } from '../state/departments.store';
 
@@ -15,17 +17,22 @@ import { DepartmentsStore } from '../state/departments.store';
 export class DepartmentList implements OnInit {
   readonly store = inject(DepartmentsStore);
   private readonly departmentService = inject(DepartmentService);
+  private readonly companyService = inject(CompanyService);
   private readonly formBuilder = inject(FormBuilder);
   readonly error = signal<string | null>(null);
   readonly message = signal<string | null>(null);
+  readonly companies = signal<Company[]>([]);
 
   readonly form = this.formBuilder.nonNullable.group({
     name: ['', Validators.required],
+    code: ['', Validators.required],
+    companyId: [''],
     description: [''],
     status: ['ACTIVE', Validators.required]
   });
 
   ngOnInit(): void {
+    this.loadCompanies();
     this.store.loadDepartments();
   }
 
@@ -39,7 +46,7 @@ export class DepartmentList implements OnInit {
 
     this.departmentService.create(this.form.getRawValue()).subscribe({
       next: () => {
-        this.form.reset({ name: '', description: '', status: 'ACTIVE' });
+        this.form.reset({ name: '', code: '', companyId: '', description: '', status: 'ACTIVE' });
         this.message.set('Department created.');
         this.store.loadDepartments();
       },
@@ -64,6 +71,13 @@ export class DepartmentList implements OnInit {
         this.store.loadDepartments();
       },
       error: (error) => this.error.set(getApiErrorMessage(error, 'Unable to delete department'))
+    });
+  }
+
+  private loadCompanies(): void {
+    this.companyService.list().subscribe({
+      next: (companies) => this.companies.set(companies),
+      error: (error) => this.error.set(getApiErrorMessage(error, 'Unable to load companies'))
     });
   }
 }
