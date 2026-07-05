@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
-import { ApiBusinessError, ApiResponse } from '../models/api-response.model';
+import { ApiBusinessError, ApiErrorData, ApiResponse, GENERIC_API_ERROR_MESSAGE } from '../models/api-response.model';
 
 @Injectable({ providedIn: 'root' })
 export class ApiClientService {
@@ -57,9 +57,22 @@ export class ApiClientService {
 
   private unwrapResponse<TResponse>(response: ApiResponse<TResponse>): TResponse {
     if (!response.success || response.statusCode === '01') {
-      throw new ApiBusinessError(response.message ?? 'Request failed', response as ApiResponse<unknown>);
+      const errorData = this.getErrorData(response.data);
+      const message = errorData?.display === true && errorData.displayMessage
+        ? errorData.displayMessage
+        : GENERIC_API_ERROR_MESSAGE;
+
+      throw new ApiBusinessError(message, response as ApiResponse<unknown>, errorData);
     }
 
     return response.data;
+  }
+
+  private getErrorData(data: unknown): ApiErrorData | undefined {
+    if (!data || typeof data !== 'object') {
+      return undefined;
+    }
+
+    return data as ApiErrorData;
   }
 }

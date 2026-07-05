@@ -8,22 +8,30 @@ export interface ApiResponse<T> {
   timestamp?: string;
 }
 
+export interface ApiErrorData {
+  code?: string;
+  display?: boolean;
+  displayMessage?: string | null;
+  severity?: 'ERROR' | 'WARNING' | 'INFO' | string;
+  details?: Record<string, string>;
+  action?: string;
+}
+
 export class ApiBusinessError extends Error {
   constructor(
     message: string,
-    readonly response: ApiResponse<unknown>
+    readonly response: ApiResponse<unknown>,
+    readonly errorData?: ApiErrorData
   ) {
     super(message);
     this.name = 'ApiBusinessError';
   }
 }
 
+export const GENERIC_API_ERROR_MESSAGE = 'Something went wrong. Please try again.';
+
 export function getApiErrorMessage(error: unknown, fallback: string): string {
   if (error instanceof ApiBusinessError) {
-    return error.message;
-  }
-
-  if (error && typeof error === 'object' && 'message' in error && typeof error.message === 'string') {
     return error.message;
   }
 
