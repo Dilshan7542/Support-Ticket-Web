@@ -1,7 +1,8 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
+import { getApiErrorMessage } from '../../../core/models/api-response.model';
 import { DepartmentService } from '../department.service';
 import { DepartmentsStore } from '../state/departments.store';
 
@@ -15,6 +16,8 @@ export class DepartmentList implements OnInit {
   readonly store = inject(DepartmentsStore);
   private readonly departmentService = inject(DepartmentService);
   private readonly formBuilder = inject(FormBuilder);
+  readonly error = signal<string | null>(null);
+  readonly message = signal<string | null>(null);
 
   readonly form = this.formBuilder.nonNullable.group({
     name: ['', Validators.required],
@@ -31,9 +34,16 @@ export class DepartmentList implements OnInit {
       return;
     }
 
-    this.departmentService.create(this.form.getRawValue()).subscribe(() => {
-      this.form.reset({ name: '', description: '', status: 'ACTIVE' });
-      this.store.loadDepartments();
+    this.error.set(null);
+    this.message.set(null);
+
+    this.departmentService.create(this.form.getRawValue()).subscribe({
+      next: () => {
+        this.form.reset({ name: '', description: '', status: 'ACTIVE' });
+        this.message.set('Department created.');
+        this.store.loadDepartments();
+      },
+      error: (error) => this.error.set(getApiErrorMessage(error, 'Unable to create department'))
     });
   }
 
@@ -45,6 +55,15 @@ export class DepartmentList implements OnInit {
       return;
     }
 
-    this.departmentService.delete(id).subscribe(() => this.store.loadDepartments());
+    this.error.set(null);
+    this.message.set(null);
+
+    this.departmentService.delete(id).subscribe({
+      next: () => {
+        this.message.set('Department deleted.');
+        this.store.loadDepartments();
+      },
+      error: (error) => this.error.set(getApiErrorMessage(error, 'Unable to delete department'))
+    });
   }
 }

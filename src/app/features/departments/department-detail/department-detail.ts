@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
+import { getApiErrorMessage } from '../../../core/models/api-response.model';
 import { Department } from '../../../core/models/department.model';
 import { DepartmentService } from '../department.service';
 
@@ -18,6 +19,8 @@ export class DepartmentDetail implements OnInit {
   private readonly formBuilder = inject(FormBuilder);
 
   readonly department = signal<Department | null>(null);
+  readonly error = signal<string | null>(null);
+  readonly message = signal<string | null>(null);
   readonly form = this.formBuilder.nonNullable.group({
     name: ['', Validators.required],
     description: [''],
@@ -35,10 +38,19 @@ export class DepartmentDetail implements OnInit {
       return;
     }
 
+    this.error.set(null);
+    this.message.set(null);
+
     this.departmentService.update({
       id: department.id,
       ...this.form.getRawValue()
-    }).subscribe((updatedDepartment) => this.department.set(updatedDepartment));
+    }).subscribe({
+      next: (updatedDepartment) => {
+        this.department.set(updatedDepartment);
+        this.message.set('Department updated.');
+      },
+      error: (error) => this.error.set(getApiErrorMessage(error, 'Unable to update department'))
+    });
   }
 
   delete(): void {
@@ -48,20 +60,30 @@ export class DepartmentDetail implements OnInit {
       return;
     }
 
-    this.departmentService.delete(department.id).subscribe(() => this.router.navigateByUrl('/departments'));
+    this.error.set(null);
+    this.message.set(null);
+
+    this.departmentService.delete(department.id).subscribe({
+      next: () => this.router.navigateByUrl('/departments'),
+      error: (error) => this.error.set(getApiErrorMessage(error, 'Unable to delete department'))
+    });
   }
 
   private loadDepartment(): void {
     const id = this.route.snapshot.paramMap.get('id');
 
     if (id) {
-      this.departmentService.detail({ id }).subscribe((department) => {
-        this.department.set(department);
-        this.form.reset({
-          name: department.name,
-          description: department.description ?? '',
-          status: department.status ?? 'ACTIVE'
-        });
+      this.error.set(null);
+      this.departmentService.detail({ id }).subscribe({
+        next: (department) => {
+          this.department.set(department);
+          this.form.reset({
+            name: department.name,
+            description: department.description ?? '',
+            status: department.status ?? 'ACTIVE'
+          });
+        },
+        error: (error) => this.error.set(getApiErrorMessage(error, 'Unable to load department'))
       });
     }
   }

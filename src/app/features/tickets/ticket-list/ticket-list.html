@@ -11,6 +11,7 @@
       <div>
         <strong>{{ ticket.subject }}</strong>
         <div class="app-muted small">Customer: {{ ticket.customerId || 'Unknown' }} | Priority: {{ ticket.priority || 'MEDIUM' }}</div>
+        <div class="app-muted small">Created: {{ ticket.createdAt ? (ticket.createdAt | date:'medium') : 'Unknown' }}</div>
       </div>
       <span class="badge text-bg-secondary">{{ ticket.status }}</span>
     </a>

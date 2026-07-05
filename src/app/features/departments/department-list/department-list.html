@@ -7,6 +7,12 @@
   <form class="card border-0 shadow-sm" [formGroup]="form" (ngSubmit)="create()">
     <div class="card-body vstack gap-3">
       <h3 class="h5 mb-0">Add Department</h3>
+      @if (error()) {
+        <div class="alert alert-danger mb-0">{{ error() }}</div>
+      }
+      @if (message()) {
+        <div class="alert alert-success mb-0">{{ message() }}</div>
+      }
       <input class="form-control" formControlName="name" placeholder="Department name" />
       <textarea class="form-control" formControlName="description" rows="4" placeholder="Description"></textarea>
       <select class="form-select" formControlName="status">
