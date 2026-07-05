@@ -3,7 +3,9 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { Company } from '../../../core/models/company.model';
+import { Department } from '../../../core/models/department.model';
 import { getApiErrorMessage } from '../../../core/models/api-response.model';
+import { DepartmentService } from '../../departments/department.service';
 import { CompanyService } from '../company.service';
 
 @Component({
@@ -14,11 +16,14 @@ import { CompanyService } from '../company.service';
 })
 export class CompanyDetail implements OnInit {
   private readonly companyService = inject(CompanyService);
+  private readonly departmentService = inject(DepartmentService);
   private readonly route = inject(ActivatedRoute);
   private readonly formBuilder = inject(FormBuilder);
 
   readonly company = signal<Company | null>(null);
+  readonly departments = signal<Department[]>([]);
   readonly error = signal<string | null>(null);
+  readonly departmentError = signal<string | null>(null);
   readonly message = signal<string | null>(null);
   readonly form = this.formBuilder.nonNullable.group({
     name: ['', Validators.required],
@@ -64,6 +69,7 @@ export class CompanyDetail implements OnInit {
     this.companyService.detail({ id }).subscribe({
       next: (company) => {
         this.company.set(company);
+        this.loadDepartments(company.id);
         this.form.reset({
           name: company.name,
           code: company.code,
@@ -72,6 +78,14 @@ export class CompanyDetail implements OnInit {
         });
       },
       error: (error) => this.error.set(getApiErrorMessage(error, 'Unable to load company'))
+    });
+  }
+
+  private loadDepartments(companyId: string | number): void {
+    this.departmentError.set(null);
+    this.departmentService.list({ companyId }).subscribe({
+      next: (departments) => this.departments.set(departments),
+      error: (error) => this.departmentError.set(getApiErrorMessage(error, 'Unable to load departments'))
     });
   }
 }

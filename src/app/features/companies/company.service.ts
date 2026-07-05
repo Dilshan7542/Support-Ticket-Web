@@ -14,31 +14,39 @@ export class CompanyService {
 
   create(request: Partial<Company>): Observable<Company> {
     return this.api.post<Company>(API_ENDPOINTS.companies.create, {
-      userId: this.tokenStorage.getUserId(),
+      userId: this.getUserId(),
       ...request
     });
   }
 
   list(request: ListRequest = {}): Observable<Company[]> {
-    return this.api.post<Company[], ListRequest>(API_ENDPOINTS.companies.list, {
-      userId: this.tokenStorage.getUserId(),
-      ...request
-    });
+    return this.api.post<Company[], ListRequest>(API_ENDPOINTS.companies.list, request);
   }
 
   detail(request: DetailRequest): Observable<Company> {
     return this.api.post<Company>(API_ENDPOINTS.companies.detail, {
-      userId: this.tokenStorage.getUserId(),
-      companyId: request.id
+      companyId: this.toNumber(request.id)
     });
   }
 
   update(request: Partial<Company>): Observable<Company> {
     const { id, ...changes } = request;
     return this.api.post<Company>(API_ENDPOINTS.companies.update, {
-      userId: this.tokenStorage.getUserId(),
-      companyId: id,
+      userId: this.getUserId(),
+      companyId: this.toNumber(id),
       ...changes
     });
+  }
+
+  private getUserId(): number | null {
+    return this.toNumber(this.tokenStorage.getUserId());
+  }
+
+  private toNumber(value: string | number | null | undefined): number | null {
+    if (value === null || value === undefined || value === '') {
+      return null;
+    }
+
+    return Number(value);
   }
 }

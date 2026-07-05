@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { Company } from '../../../core/models/company.model';
 import { getApiErrorMessage } from '../../../core/models/api-response.model';
@@ -18,6 +18,7 @@ export class DepartmentList implements OnInit {
   readonly store = inject(DepartmentsStore);
   private readonly departmentService = inject(DepartmentService);
   private readonly companyService = inject(CompanyService);
+  private readonly route = inject(ActivatedRoute);
   private readonly formBuilder = inject(FormBuilder);
   readonly error = signal<string | null>(null);
   readonly message = signal<string | null>(null);
@@ -32,8 +33,10 @@ export class DepartmentList implements OnInit {
   });
 
   ngOnInit(): void {
+    const companyId = this.route.snapshot.queryParamMap.get('companyId') ?? '';
+    this.form.patchValue({ companyId });
     this.loadCompanies();
-    this.store.loadDepartments();
+    this.store.loadDepartments(companyId ? { companyId } : {});
   }
 
   create(): void {
@@ -43,12 +46,13 @@ export class DepartmentList implements OnInit {
 
     this.error.set(null);
     this.message.set(null);
+    const companyId = this.form.controls.companyId.value;
 
     this.departmentService.create(this.form.getRawValue()).subscribe({
       next: () => {
-        this.form.reset({ name: '', code: '', companyId: '', description: '', status: 'ACTIVE' });
+        this.form.reset({ name: '', code: '', companyId, description: '', status: 'ACTIVE' });
         this.message.set('Department created.');
-        this.store.loadDepartments();
+        this.store.loadDepartments(companyId ? { companyId } : {});
       },
       error: (error) => this.error.set(getApiErrorMessage(error, 'Unable to create department'))
     });
@@ -68,7 +72,7 @@ export class DepartmentList implements OnInit {
     this.departmentService.delete(id).subscribe({
       next: () => {
         this.message.set('Department deleted.');
-        this.store.loadDepartments();
+        this.store.loadDepartments(this.form.controls.companyId.value ? { companyId: this.form.controls.companyId.value } : {});
       },
       error: (error) => this.error.set(getApiErrorMessage(error, 'Unable to delete department'))
     });

@@ -26,6 +26,31 @@
       </div>
     </div>
   </form>
+
+  <section class="card border-0 shadow-sm mt-3">
+    <div class="card-body">
+      <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
+        <h3 class="h5 mb-0">Departments</h3>
+        <a class="btn btn-outline-primary btn-sm" routerLink="/departments" [queryParams]="{ companyId: company()?.id }">Add department</a>
+      </div>
+
+      @if (departmentError()) {
+        <div class="alert alert-danger mb-0">{{ departmentError() }}</div>
+      } @else {
+        <div class="list-group list-group-flush">
+          @for (department of departments(); track department.id) {
+            <a class="list-group-item list-group-item-action px-0" [routerLink]="['/departments', department.id]">
+              <strong>{{ department.name }}</strong>
+              <div class="app-muted small">{{ department.code || 'NO-CODE' }} | {{ department.status || 'ACTIVE' }}</div>
+              <div class="app-muted small">{{ department.description || 'No description' }}</div>
+            </a>
+          } @empty {
+            <div class="app-muted">No departments for this company.</div>
+          }
+        </div>
+      }
+    </div>
+  </section>
 } @else {
   <section class="card border-0 shadow-sm">
     <div class="card-body">

@@ -1,6 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { finalize } from 'rxjs';
 
+import { ListRequest } from '../../../core/models/api-response.model';
 import { Department } from '../../../core/models/department.model';
 import { DepartmentService } from '../department.service';
 
@@ -13,9 +14,9 @@ export class DepartmentsStore {
   readonly departments = this.departmentsSignal.asReadonly();
   readonly loading = this.loadingSignal.asReadonly();
 
-  loadDepartments(): void {
+  loadDepartments(request: ListRequest = {}): void {
     this.loadingSignal.set(true);
-    this.departmentService.list().pipe(
+    this.departmentService.list(request).pipe(
       finalize(() => this.loadingSignal.set(false))
     ).subscribe((departments) => this.departmentsSignal.set(departments));
   }
