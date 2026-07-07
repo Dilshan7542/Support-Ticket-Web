@@ -1,13 +1,69 @@
 <header class="mb-4">
   <h2 class="h3 mb-1">Create Ticket</h2>
-  <p class="app-muted mb-0">Open a new support request.</p>
+  <p class="app-muted mb-0">Create a complaint ticket from a customer-care call.</p>
 </header>
 
 <form class="card border-0 shadow-sm" [formGroup]="form" (ngSubmit)="submit()">
   <div class="card-body vstack gap-3">
-    <input class="form-control" formControlName="subject" placeholder="Subject" />
-    <textarea class="form-control" formControlName="description" placeholder="Description" rows="5"></textarea>
-    <input class="form-control" formControlName="priority" placeholder="Priority" />
-    <button class="btn btn-primary align-self-start" type="submit" [disabled]="form.invalid">Create</button>
+    @if (error) {
+      <div class="alert alert-danger mb-0">{{ error }}</div>
+    }
+
+    @if (categoriesError) {
+      <div class="alert alert-warning mb-0">
+        {{ categoriesError }}
+        <button class="btn btn-sm btn-outline-secondary ms-2" type="button" (click)="loadCategories()">Retry</button>
+      </div>
+    }
+
+    @if (createdTicket) {
+      <div class="alert alert-success mb-0">
+        Ticket {{ createdTicket.ticketNo || createdTicket.id }} created.
+      </div>
+    }
+
+    <div class="row g-3">
+      <div class="col-md-4">
+        <label class="form-label" for="callerName">Caller name</label>
+        <input id="callerName" class="form-control" formControlName="callerName" placeholder="Customer name" />
+      </div>
+      <div class="col-md-4">
+        <label class="form-label" for="callerContact">Caller contact</label>
+        <input id="callerContact" class="form-control" formControlName="callerContact" placeholder="Phone or email" />
+      </div>
+      <div class="col-md-4">
+        <label class="form-label" for="companyName">Company</label>
+        <input id="companyName" class="form-control" formControlName="companyName" placeholder="Customer company" />
+      </div>
+    </div>
+
+    <div>
+      <label class="form-label" for="subject">Subject</label>
+      <input id="subject" class="form-control" formControlName="subject" placeholder="Complaint subject" />
+    </div>
+
+    <div>
+      <label class="form-label" for="categoryCode">Category</label>
+      <select id="categoryCode" class="form-select" formControlName="categoryCode" [disabled]="categoriesLoading.value">
+        <option value="">{{ categoriesLoading.value ? 'Loading categories...' : 'Select category' }}</option>
+        @for (category of categories; track category.id) {
+          <option [value]="category.code">
+            {{ category.name }} ({{ category.code }})
+          </option>
+        }
+      </select>
+    </div>
+
+    <div>
+      <label class="form-label" for="description">Complaint details</label>
+      <textarea id="description" class="form-control" formControlName="description" placeholder="Describe what the caller reported" rows="6"></textarea>
+    </div>
+
+    <div class="d-flex gap-2">
+      <button class="btn btn-primary" type="submit" [disabled]="form.invalid || loading.value || categoriesLoading.value">
+        {{ loading.value ? 'Creating...' : 'Create Ticket' }}
+      </button>
+      <a class="btn btn-outline-secondary" routerLink="/tickets">Back</a>
+    </div>
   </div>
 </form>

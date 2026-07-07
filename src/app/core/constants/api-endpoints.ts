@@ -40,7 +40,10 @@ export const API_ENDPOINTS = {
     detail: '/api/v1/activity-logs/detail'
   },
   ticketCategories: {
-    list: '/api/v1/ticket-categories/list'
+    create: '/api/v1/ticket-categories/create',
+    list: '/api/v1/ticket-categories/list',
+    detail: '/api/v1/ticket-categories/detail',
+    update: '/api/v1/ticket-categories/update'
   },
   ticketStatuses: {
     list: '/api/v1/ticket-statuses/list'

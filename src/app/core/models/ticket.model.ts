@@ -33,11 +33,14 @@ export interface Ticket {
   subject: string;
   description?: string;
   category?: string | null;
+  categoryCode?: string | null;
+  categoryName?: string | null;
   status: string;
   priority?: string;
   customerId?: string | number;
   companyId?: string | number | null;
   companyName?: string | null;
+  categoryId?: string | number | null;
   departmentId?: string | number | null;
   departmentName?: string | null;
   assignedStaffId?: string | number | null;
@@ -52,6 +55,7 @@ export interface CreateTicketRequest {
   subject: string;
   description: string;
   category?: string;
+  categoryCode?: string | null;
   departmentId?: string | number;
   priority?: string;
   userId: string | number;
