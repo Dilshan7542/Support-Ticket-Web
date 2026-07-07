@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
@@ -23,11 +23,8 @@ export class CompanyList implements OnInit {
   readonly message = signal<string | null>(null);
   readonly pageSize = 20;
   readonly currentPage = signal(1);
-  readonly totalPages = computed(() => Math.max(1, Math.ceil(this.companies().length / this.pageSize)));
-  readonly pageCompanies = computed(() => {
-    const start = (this.currentPage() - 1) * this.pageSize;
-    return this.companies().slice(start, start + this.pageSize);
-  });
+  readonly totalPages = signal(1);
+  readonly totalElements = signal(0);
   readonly form = this.formBuilder.nonNullable.group({
     name: ['', Validators.required],
     code: ['', Validators.required],
@@ -35,7 +32,7 @@ export class CompanyList implements OnInit {
   });
 
   ngOnInit(): void {
-    this.loadCompanies();
+    this.loadCompanies(1);
   }
 
   create(): void {
@@ -50,26 +47,31 @@ export class CompanyList implements OnInit {
       next: () => {
         this.form.reset({ name: '', code: '', description: '' });
         this.message.set('Company created.');
-        this.loadCompanies();
+        this.loadCompanies(this.currentPage());
       },
       error: (error) => this.error.set(getApiErrorMessage(error, 'Unable to create company'))
     });
   }
 
   nextPage(): void {
-    this.currentPage.update((page) => Math.min(this.totalPages(), page + 1));
+    this.loadCompanies(Math.min(this.totalPages(), this.currentPage() + 1));
   }
 
   previousPage(): void {
-    this.currentPage.update((page) => Math.max(1, page - 1));
+    this.loadCompanies(Math.max(1, this.currentPage() - 1));
   }
 
-  private loadCompanies(): void {
+  private loadCompanies(page: number): void {
     this.loading.set(true);
-    this.companyService.list().pipe(
+    this.currentPage.set(page);
+    this.companyService.listPage({ page: page - 1, size: this.pageSize }).pipe(
       finalize(() => this.loading.set(false))
     ).subscribe({
-      next: (companies) => this.companies.set(companies),
+      next: (pageResponse) => {
+        this.companies.set(pageResponse.content);
+        this.totalPages.set(Math.max(1, pageResponse.totalPages));
+        this.totalElements.set(pageResponse.totalElements);
+      },
       error: (error) => this.error.set(getApiErrorMessage(error, 'Unable to load companies'))
     });
   }

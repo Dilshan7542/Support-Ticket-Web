@@ -1,10 +1,11 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { TokenStorageService } from '../../core/auth/token-storage.service';
 import { API_ENDPOINTS } from '../../core/constants/api-endpoints';
 import { ApiClientService } from '../../core/http/api-client.service';
-import { DetailRequest, ListRequest } from '../../core/models/api-response.model';
+import { DetailRequest, ListRequest, PageResponse } from '../../core/models/api-response.model';
 import { Department } from '../../core/models/department.model';
 
 @Injectable({ providedIn: 'root' })
@@ -20,8 +21,14 @@ export class DepartmentService {
   }
 
   list(request: ListRequest = {}): Observable<Department[]> {
-    return this.api.post<Department[], ListRequest>(API_ENDPOINTS.departments.list, {
+    return this.listPage({ page: 0, size: 100, ...request }).pipe(map((page) => page.content));
+  }
+
+  listPage(request: ListRequest = {}): Observable<PageResponse<Department>> {
+    return this.api.post<PageResponse<Department>, ListRequest>(API_ENDPOINTS.departments.list, {
       userId: this.getUserId(),
+      page: 0,
+      size: 20,
       ...this.normalizeDepartmentRequest(request)
     });
   }

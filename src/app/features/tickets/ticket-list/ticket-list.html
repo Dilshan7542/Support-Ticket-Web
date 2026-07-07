@@ -19,7 +19,7 @@
       </tr>
     </thead>
     <tbody>
-      @for (ticket of pageTickets(); track ticket.id) {
+      @for (ticket of store.tickets(); track ticket.id) {
         <tr>
           <td>
             <strong>{{ ticket.ticketNo || ticket.subject }}</strong>
@@ -46,9 +46,9 @@
 </section>
 
 <div class="d-flex align-items-center justify-content-between gap-3 mt-3">
-  <span class="app-muted small">Page {{ currentPage() }} of {{ totalPages() }}</span>
+  <span class="app-muted small">Page {{ currentPage() }} of {{ store.totalPages() }}</span>
   <div class="btn-group">
     <button class="btn btn-outline-secondary btn-sm" type="button" (click)="previousPage()" [disabled]="currentPage() === 1">Previous</button>
-    <button class="btn btn-outline-secondary btn-sm" type="button" (click)="nextPage()" [disabled]="currentPage() === totalPages()">Next</button>
+    <button class="btn btn-outline-secondary btn-sm" type="button" (click)="nextPage()" [disabled]="currentPage() === store.totalPages()">Next</button>
   </div>
 </div>

@@ -17,6 +17,16 @@ export interface ApiErrorData {
   action?: string;
 }
 
+export interface PageResponse<T> {
+  content: T[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  first: boolean;
+  last: boolean;
+}
+
 export class ApiBusinessError extends Error {
   constructor(
     message: string,

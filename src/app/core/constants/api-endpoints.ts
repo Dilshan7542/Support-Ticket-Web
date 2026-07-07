@@ -2,6 +2,7 @@ export const API_ENDPOINTS = {
   auth: {
     login: '/api/v1/auth/login',
     register: '/api/v1/auth/register',
+    createUser: '/api/v1/auth/create-user',
     refreshToken: '/api/v1/auth/refresh-token',
     logout: '/api/v1/auth/logout'
   },
@@ -37,6 +38,12 @@ export const API_ENDPOINTS = {
   activityLogs: {
     list: '/api/v1/activity-logs/list',
     detail: '/api/v1/activity-logs/detail'
+  },
+  ticketCategories: {
+    list: '/api/v1/ticket-categories/list'
+  },
+  ticketStatuses: {
+    list: '/api/v1/ticket-statuses/list'
   },
   health: {
     status: '/api/v1/health/status'

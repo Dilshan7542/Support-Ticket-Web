@@ -9,14 +9,15 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
   const traceIdService = inject(TraceIdService);
   const accessToken = tokenStorage.getAccessToken();
   const encryptionKeyId = tokenStorage.getEncryptionKeyId();
+  const isKeyExchangeRequest = request.url.includes('/api/v1/security/key-exchange');
 
   let headers = request.headers.set('X-Trace-Id', traceIdService.create());
 
-  if (accessToken) {
+  if (accessToken && !isKeyExchangeRequest) {
     headers = headers.set('Authorization', `Bearer ${accessToken}`);
   }
 
-  if (encryptionKeyId && !request.url.includes('/api/v1/security/key-exchange')) {
+  if (encryptionKeyId && !isKeyExchangeRequest) {
     headers = headers.set('X-Key-Id', encryptionKeyId);
   }
 

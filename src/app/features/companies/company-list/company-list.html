@@ -33,7 +33,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (company of pageCompanies(); track company.id) {
+          @for (company of companies(); track company.id) {
             <tr>
               <td><strong>{{ company.name }}</strong></td>
               <td>{{ company.code }}</td>

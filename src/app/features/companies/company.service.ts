@@ -1,11 +1,12 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { TokenStorageService } from '../../core/auth/token-storage.service';
 import { API_ENDPOINTS } from '../../core/constants/api-endpoints';
 import { ApiClientService } from '../../core/http/api-client.service';
 import { Company } from '../../core/models/company.model';
-import { DetailRequest, ListRequest } from '../../core/models/api-response.model';
+import { DetailRequest, ListRequest, PageResponse } from '../../core/models/api-response.model';
 
 @Injectable({ providedIn: 'root' })
 export class CompanyService {
@@ -20,7 +21,16 @@ export class CompanyService {
   }
 
   list(request: ListRequest = {}): Observable<Company[]> {
-    return this.api.post<Company[], ListRequest>(API_ENDPOINTS.companies.list, request);
+    return this.listPage({ page: 0, size: 100, ...request }).pipe(map((page) => page.content));
+  }
+
+  listPage(request: ListRequest = {}): Observable<PageResponse<Company>> {
+    return this.api.post<PageResponse<Company>, ListRequest>(API_ENDPOINTS.companies.list, {
+      userId: this.getUserId(),
+      page: 0,
+      size: 100,
+      ...request
+    });
   }
 
   detail(request: DetailRequest): Observable<Company> {

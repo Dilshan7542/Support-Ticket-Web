@@ -1,11 +1,12 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { TokenStorageService } from '../../core/auth/token-storage.service';
 import { API_ENDPOINTS } from '../../core/constants/api-endpoints';
 import { ApiClientService } from '../../core/http/api-client.service';
-import { DetailRequest, ListRequest } from '../../core/models/api-response.model';
+import { DetailRequest, ListRequest, PageResponse } from '../../core/models/api-response.model';
 import {
   AddTicketReplyRequest,
   AssignTicketRequest,
@@ -26,8 +27,14 @@ export class TicketService {
   }
 
   list(request: ListRequest = {}): Observable<Ticket[]> {
-    return this.api.post<Ticket[], ListRequest>(API_ENDPOINTS.tickets.list, {
+    return this.listPage({ page: 0, size: 100, ...request }).pipe(map((page) => page.content));
+  }
+
+  listPage(request: ListRequest = {}): Observable<PageResponse<Ticket>> {
+    return this.api.post<PageResponse<Ticket>, ListRequest>(API_ENDPOINTS.tickets.list, {
       userId: this.tokenStorage.getUserId(),
+      page: 0,
+      size: 20,
       ...request
     });
   }

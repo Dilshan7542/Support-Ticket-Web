@@ -1,3 +1,5 @@
+export type UserRole = 'CUSTOMER' | 'VIEWER' | 'EDITOR' | 'SUPER_ADMIN';
+
 export interface LoginRequest {
   username: string;
   password: string;
@@ -18,12 +20,12 @@ export interface AuthTokens {
   encryptionKeyId?: string;
   username?: string;
   fullName?: string;
-  role?: string;
+  role?: UserRole;
 }
 
 export interface AuthUser {
   id: string | number;
   name?: string;
   username?: string;
-  role?: string;
+  role?: UserRole;
 }
