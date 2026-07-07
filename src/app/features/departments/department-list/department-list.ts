@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
@@ -23,6 +23,13 @@ export class DepartmentList implements OnInit {
   readonly error = signal<string | null>(null);
   readonly message = signal<string | null>(null);
   readonly companies = signal<Company[]>([]);
+  readonly pageSize = 20;
+  readonly currentPage = signal(1);
+  readonly totalPages = computed(() => Math.max(1, Math.ceil(this.store.departments().length / this.pageSize)));
+  readonly pageDepartments = computed(() => {
+    const start = (this.currentPage() - 1) * this.pageSize;
+    return this.store.departments().slice(start, start + this.pageSize);
+  });
 
   readonly form = this.formBuilder.nonNullable.group({
     name: ['', Validators.required],
@@ -76,6 +83,14 @@ export class DepartmentList implements OnInit {
       },
       error: (error) => this.error.set(getApiErrorMessage(error, 'Unable to delete department'))
     });
+  }
+
+  nextPage(): void {
+    this.currentPage.update((page) => Math.min(this.totalPages(), page + 1));
+  }
+
+  previousPage(): void {
+    this.currentPage.update((page) => Math.max(1, page - 1));
   }
 
   private loadCompanies(): void {

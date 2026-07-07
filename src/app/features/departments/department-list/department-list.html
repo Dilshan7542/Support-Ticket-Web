@@ -1,6 +1,6 @@
 <header class="mb-4">
   <h2 class="h3 mb-1">Departments</h2>
-  <p class="app-muted mb-0">Create, update, and remove support departments.</p>
+  <p class="app-muted mb-0">Create, update, and remove support departments, 20 rows per page.</p>
 </header>
 
 <section class="department-grid">
@@ -30,18 +30,49 @@
     </div>
   </form>
 
-  <div class="list-group shadow-sm">
-    @for (department of store.departments(); track department.id) {
-      <a class="list-group-item list-group-item-action d-flex align-items-center justify-content-between gap-3" [routerLink]="['/departments', department.id]">
-        <div>
-          <strong>{{ department.name }}</strong>
-          <div class="app-muted small">{{ department.code || 'NO-CODE' }} | {{ department.companyName || 'No company' }} | {{ department.status || 'ACTIVE' }}</div>
-          <div class="app-muted small">{{ department.description || 'No description' }}</div>
-        </div>
-        <button class="btn btn-outline-danger btn-sm" type="button" (click)="delete(department.id, $event)">Delete</button>
-      </a>
-    } @empty {
-      <div class="list-group-item">No departments found.</div>
-    }
+  <div>
+    <div class="table-responsive shadow-sm rounded">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th scope="col">Department</th>
+            <th scope="col">Code</th>
+            <th scope="col">Company</th>
+            <th scope="col">Status</th>
+            <th scope="col">Description</th>
+            <th scope="col" class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (department of pageDepartments(); track department.id) {
+            <tr>
+              <td><strong>{{ department.name }}</strong></td>
+              <td>{{ department.code || 'NO-CODE' }}</td>
+              <td>{{ department.companyName || 'No company' }}</td>
+              <td>{{ department.status || 'ACTIVE' }}</td>
+              <td>{{ department.description || 'No description' }}</td>
+              <td class="text-end">
+                <div class="btn-group btn-group-sm">
+                  <a class="btn btn-outline-primary" [routerLink]="['/departments', department.id]">View</a>
+                  <button class="btn btn-outline-danger" type="button" (click)="delete(department.id, $event)">Delete</button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="text-center app-muted py-4">No departments found.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="d-flex align-items-center justify-content-between gap-3 mt-3">
+      <span class="app-muted small">Page {{ currentPage() }} of {{ totalPages() }}</span>
+      <div class="btn-group">
+        <button class="btn btn-outline-secondary btn-sm" type="button" (click)="previousPage()" [disabled]="currentPage() === 1">Previous</button>
+        <button class="btn btn-outline-secondary btn-sm" type="button" (click)="nextPage()" [disabled]="currentPage() === totalPages()">Next</button>
+      </div>
+    </div>
   </div>
 </section>

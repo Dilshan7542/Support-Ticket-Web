@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
@@ -21,6 +21,13 @@ export class CompanyList implements OnInit {
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
   readonly message = signal<string | null>(null);
+  readonly pageSize = 20;
+  readonly currentPage = signal(1);
+  readonly totalPages = computed(() => Math.max(1, Math.ceil(this.companies().length / this.pageSize)));
+  readonly pageCompanies = computed(() => {
+    const start = (this.currentPage() - 1) * this.pageSize;
+    return this.companies().slice(start, start + this.pageSize);
+  });
   readonly form = this.formBuilder.nonNullable.group({
     name: ['', Validators.required],
     code: ['', Validators.required],
@@ -47,6 +54,14 @@ export class CompanyList implements OnInit {
       },
       error: (error) => this.error.set(getApiErrorMessage(error, 'Unable to create company'))
     });
+  }
+
+  nextPage(): void {
+    this.currentPage.update((page) => Math.min(this.totalPages(), page + 1));
+  }
+
+  previousPage(): void {
+    this.currentPage.update((page) => Math.max(1, page - 1));
   }
 
   private loadCompanies(): void {

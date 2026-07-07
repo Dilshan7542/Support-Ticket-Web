@@ -1,23 +1,54 @@
 <header class="d-flex align-items-center justify-content-between mb-4">
   <div>
     <h2 class="h3 mb-1">Complaints</h2>
-    <p class="app-muted mb-0">Manage customer complaints and statuses.</p>
+    <p class="app-muted mb-0">Manage customer complaints and statuses, 20 rows per page.</p>
   </div>
 </header>
 
-<section class="list-group shadow-sm">
-  @for (ticket of store.tickets(); track ticket.id) {
-    <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center gap-3" [routerLink]="['/tickets', ticket.id]">
-      <div>
-        <strong>{{ ticket.ticketNo || ticket.subject }}</strong>
-        <div class="fw-semibold">{{ ticket.ticketNo ? ticket.subject : '' }}</div>
-        <div class="app-muted small">Company: {{ ticket.companyName || ticket.companyId || 'No company' }}</div>
-        <div class="app-muted small">Customer: {{ ticket.customerId || 'Unknown' }} | Priority: {{ ticket.priority || 'MEDIUM' }}</div>
-        <div class="app-muted small">Date/Time: {{ ticket.createdAt ? (ticket.createdAt | date:'medium') : 'Unknown' }}</div>
-      </div>
-      <span class="badge text-bg-secondary">{{ ticket.status || 'NEW' }}</span>
-    </a>
-  } @empty {
-    <div class="list-group-item">No complaints found.</div>
-  }
+<section class="table-responsive shadow-sm rounded">
+  <table class="table table-hover align-middle mb-0">
+    <thead>
+      <tr>
+        <th scope="col">Ticket</th>
+        <th scope="col">Company</th>
+        <th scope="col">Customer</th>
+        <th scope="col">Priority</th>
+        <th scope="col">Status</th>
+        <th scope="col">Date/Time</th>
+        <th scope="col" class="text-end">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (ticket of pageTickets(); track ticket.id) {
+        <tr>
+          <td>
+            <strong>{{ ticket.ticketNo || ticket.subject }}</strong>
+            @if (ticket.ticketNo) {
+              <div class="app-muted small">{{ ticket.subject }}</div>
+            }
+          </td>
+          <td>{{ ticket.companyName || ticket.companyId || 'No company' }}</td>
+          <td>{{ ticket.customerId || 'Unknown' }}</td>
+          <td>{{ ticket.priority || 'MEDIUM' }}</td>
+          <td><span class="badge text-bg-secondary">{{ ticket.status || 'NEW' }}</span></td>
+          <td>{{ ticket.createdAt ? (ticket.createdAt | date:'medium') : 'Unknown' }}</td>
+          <td class="text-end">
+            <a class="btn btn-outline-primary btn-sm" [routerLink]="['/tickets', ticket.id]">View</a>
+          </td>
+        </tr>
+      } @empty {
+        <tr>
+          <td colspan="7" class="text-center app-muted py-4">No complaints found.</td>
+        </tr>
+      }
+    </tbody>
+  </table>
 </section>
+
+<div class="d-flex align-items-center justify-content-between gap-3 mt-3">
+  <span class="app-muted small">Page {{ currentPage() }} of {{ totalPages() }}</span>
+  <div class="btn-group">
+    <button class="btn btn-outline-secondary btn-sm" type="button" (click)="previousPage()" [disabled]="currentPage() === 1">Previous</button>
+    <button class="btn btn-outline-secondary btn-sm" type="button" (click)="nextPage()" [disabled]="currentPage() === totalPages()">Next</button>
+  </div>
+</div>
