@@ -1,11 +1,16 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { finalize } from 'rxjs/operators';
 
 import { TokenStorageService } from '../../../core/auth/token-storage.service';
+import { Company } from '../../../core/models/company.model';
 import { getApiErrorMessage } from '../../../core/models/api-response.model';
+import { Department } from '../../../core/models/department.model';
 import { TicketCategory } from '../../../core/models/ticket-category.model';
 import { Ticket } from '../../../core/models/ticket.model';
+import { CompanyService } from '../../companies/company.service';
+import { DepartmentService } from '../../departments/department.service';
 import { TicketCategoryService } from '../ticket-category.service';
 import { TicketService } from '../ticket.service';
 
@@ -17,82 +22,179 @@ import { TicketService } from '../ticket.service';
 })
 export class TicketCreate implements OnInit {
   private readonly formBuilder = inject(FormBuilder);
+  private readonly companyService = inject(CompanyService);
+  private readonly departmentService = inject(DepartmentService);
   private readonly ticketCategoryService = inject(TicketCategoryService);
   private readonly ticketService = inject(TicketService);
   private readonly tokenStorage = inject(TokenStorageService);
 
-  readonly loading = this.formBuilder.nonNullable.control(false);
-  readonly categoriesLoading = this.formBuilder.nonNullable.control(false);
+  loading = false;
+  categoriesLoading = false;
+  companiesLoading = false;
+  departmentsLoading = false;
   categories: TicketCategory[] = [];
+  companies: Company[] = [];
+  departments: Department[] = [];
   createdTicket?: Ticket;
   error: string | null = null;
   categoriesError: string | null = null;
+  companiesError: string | null = null;
+  departmentsError: string | null = null;
 
   readonly form = this.formBuilder.nonNullable.group({
     callerName: [''],
     callerContact: [''],
-    companyName: [''],
+    companyId: [''],
+    departmentId: [''],
     subject: ['', Validators.required],
     categoryCode: ['', Validators.required],
     description: ['', Validators.required],
   });
 
   ngOnInit(): void {
+    this.loadCompanies();
+  }
+
+  onCompanyChange(): void {
+    this.form.controls.departmentId.setValue('');
+    this.form.controls.categoryCode.setValue('');
+    this.loadDepartments(true);
+  }
+
+  onDepartmentChange(): void {
+    this.form.controls.categoryCode.setValue('');
     this.loadCategories();
   }
 
   loadCategories(): void {
-    this.categoriesLoading.setValue(true);
+    this.categoriesLoading = true;
     this.categoriesError = null;
 
-    this.ticketCategoryService.list({ page: 0, size: 100 }).subscribe({
+    const companyId = this.form.controls.companyId.value;
+    const departmentId = this.form.controls.departmentId.value;
+
+    this.ticketCategoryService.list({
+      page: 0,
+      size: 100,
+      ...(companyId ? { companyId } : {}),
+      ...(departmentId ? { departmentId } : {})
+    }).pipe(
+      finalize(() => {
+        this.categoriesLoading = false;
+      })
+    ).subscribe({
       next: (categories) => {
-        this.categories = categories.filter((category) => category.status !== 'INACTIVE' && category.status !== 'DELETED');
+        this.categories = categories.filter((category) => {
+          const isActive = category.status !== 'INACTIVE' && category.status !== 'DELETED';
+          const belongsToSelectedCompany = !companyId || !category.companyId || String(category.companyId) === String(companyId);
+          const belongsToSelectedDepartment = !departmentId || !category.departmentId || String(category.departmentId) === String(departmentId);
+
+          return isActive && belongsToSelectedCompany && belongsToSelectedDepartment;
+        });
 
         if (!this.form.controls.categoryCode.value && this.categories.length > 0) {
           this.form.controls.categoryCode.setValue(this.categories[0].code);
         }
 
-        this.categoriesLoading.setValue(false);
       },
       error: (error) => {
         this.categoriesError = getApiErrorMessage(error, 'Unable to load ticket categories');
-        this.categoriesLoading.setValue(false);
+      }
+    });
+  }
+
+  loadCompanies(): void {
+    this.companiesLoading = true;
+    this.companiesError = null;
+
+    this.companyService.list().pipe(
+      finalize(() => {
+        this.companiesLoading = false;
+      })
+    ).subscribe({
+      next: (companies) => {
+        this.companies = companies.filter((company) => company.status !== 'INACTIVE' && company.status !== 'DELETED');
+
+        if (!this.form.controls.companyId.value && this.companies.length > 0) {
+          this.form.controls.companyId.setValue(String(this.companies[0].id));
+        }
+
+        this.loadDepartments(true);
+      },
+      error: (error) => {
+        this.companiesError = getApiErrorMessage(error, 'Unable to load companies');
+        this.loadCategories();
+      }
+    });
+  }
+
+  loadDepartments(selectFirst = false): void {
+    this.departmentsLoading = true;
+    this.departmentsError = null;
+
+    const companyId = this.form.controls.companyId.value;
+
+    this.departmentService.list(companyId ? { companyId } : {}).pipe(
+      finalize(() => {
+        this.departmentsLoading = false;
+      })
+    ).subscribe({
+      next: (departments) => {
+        this.departments = departments.filter((department) => {
+          const isActive = department.status !== 'INACTIVE' && department.status !== 'DELETED';
+          const belongsToSelectedCompany = !companyId || String(department.companyId) === String(companyId);
+
+          return isActive && belongsToSelectedCompany;
+        });
+
+        if (selectFirst && !this.form.controls.departmentId.value && this.departments.length > 0) {
+          this.form.controls.departmentId.setValue(String(this.departments[0].id));
+        }
+
+        this.loadCategories();
+      },
+      error: (error) => {
+        this.departmentsError = getApiErrorMessage(error, 'Unable to load departments');
+        this.loadCategories();
       }
     });
   }
 
   submit(): void {
-    if (this.form.invalid || this.loading.value) {
+    if (this.form.invalid || this.loading) {
       return;
     }
 
     const formValue = this.form.getRawValue();
     this.error = null;
     this.createdTicket = undefined;
-    this.loading.setValue(true);
+    this.loading = true;
 
     this.ticketService.create({
       userId: this.tokenStorage.getUserId() ?? '',
       subject: formValue.subject,
       categoryCode: formValue.categoryCode,
       description: this.buildDescription(formValue)
-    }).subscribe({
+    }).pipe(
+      finalize(() => {
+        this.loading = false;
+      })
+    ).subscribe({
       next: (ticket) => {
         this.createdTicket = ticket;
         this.form.reset({
           callerName: '',
           callerContact: '',
-          companyName: '',
+          companyId: '',
+          departmentId: '',
           subject: '',
           categoryCode: this.categories[0]?.code ?? '',
           description: ''
         });
-        this.loading.setValue(false);
+        this.loadDepartments(true);
       },
       error: (error) => {
         this.error = getApiErrorMessage(error, 'Unable to create ticket');
-        this.loading.setValue(false);
       }
     });
   }
@@ -100,13 +202,17 @@ export class TicketCreate implements OnInit {
   private buildDescription(formValue: {
     callerName: string;
     callerContact: string;
-    companyName: string;
+    companyId: string;
+    departmentId: string;
     description: string;
   }): string {
+    const company = this.companies.find((item) => String(item.id) === String(formValue.companyId));
+    const department = this.departments.find((item) => String(item.id) === String(formValue.departmentId));
     const callerDetails = [
       formValue.callerName ? `Caller name: ${formValue.callerName}` : '',
       formValue.callerContact ? `Caller contact: ${formValue.callerContact}` : '',
-      formValue.companyName ? `Company: ${formValue.companyName}` : ''
+      company ? `Company: ${company.name} (${company.code})` : '',
+      department ? `Department: ${department.name}${department.code ? ` (${department.code})` : ''}` : ''
     ].filter(Boolean);
 
     return callerDetails.length

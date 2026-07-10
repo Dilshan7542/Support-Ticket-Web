@@ -22,7 +22,7 @@ export class TicketCategoryService {
       userId: this.getUserId(),
       page: 0,
       size: 100,
-      ...request
+      ...this.normalizeCategoryRequest(request)
     });
   }
 
@@ -49,11 +49,11 @@ export class TicketCategoryService {
     });
   }
 
-  private normalizeCategoryRequest<TRequest extends Partial<TicketCategory>>(request: TRequest): TRequest {
+  private normalizeCategoryRequest<TRequest extends Partial<TicketCategory> | ListRequest>(request: TRequest): TRequest {
     return {
       ...request,
-      companyId: this.toNumber(request.companyId),
-      departmentId: this.toNumber(request.departmentId)
+      companyId: this.toNumber(request.companyId as string | number | null | undefined),
+      departmentId: this.toNumber(request.departmentId as string | number | null | undefined)
     } as TRequest;
   }
 
