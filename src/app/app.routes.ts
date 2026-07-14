@@ -26,6 +26,10 @@ export const routes: Routes = [
         loadChildren: () => import('./features/tickets/tickets.routes').then((m) => m.ticketsRoutes)
       },
       {
+        path: 'ticket-categories',
+        loadComponent: () => import('./features/tickets/ticket-category-list/ticket-category-list').then((m) => m.TicketCategoryList)
+      },
+      {
         path: 'departments',
         loadChildren: () => import('./features/departments/departments.routes').then((m) => m.departmentsRoutes)
       },

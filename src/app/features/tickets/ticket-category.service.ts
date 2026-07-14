@@ -36,7 +36,9 @@ export class TicketCategoryService {
   create(request: Partial<TicketCategory>): Observable<TicketCategory> {
     return this.api.post<TicketCategory>(API_ENDPOINTS.ticketCategories.create, {
       userId: this.getUserId(),
-      ...request
+      name: request.name,
+      code: request.code,
+      description: request.description ?? null
     });
   }
 
@@ -45,7 +47,18 @@ export class TicketCategoryService {
     return this.api.post<TicketCategory>(API_ENDPOINTS.ticketCategories.update, {
       userId: this.getUserId(),
       categoryId: this.toNumber(id),
-      ...changes
+      name: changes.name,
+      code: changes.code,
+      description: changes.description ?? null,
+      status: changes.status
+    });
+  }
+
+  softDelete(id: string | number): Observable<TicketCategory> {
+    return this.api.post<TicketCategory>(API_ENDPOINTS.ticketCategories.update, {
+      userId: this.getUserId(),
+      categoryId: this.toNumber(id),
+      status: 'DELETED'
     });
   }
 

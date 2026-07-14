@@ -1,25 +1,31 @@
-<div class="min-vh-100 d-flex app-surface">
+<div class="min-vh-100 d-flex app-surface" [class.sidebar-collapsed]="sidebarCollapsed()">
   <aside class="sidebar border-end">
-    <div class="d-flex align-items-center gap-2 mb-4">
+    <div class="d-flex align-items-center gap-2 mb-4 brand-row">
       <img src="/assets/img/support-ticket.png" alt="Logo" class="brand-logo" />
-      <h1 class="h5 mb-0">Support Desk</h1>
+      <h1 class="h5 mb-0 nav-label">Support Desk</h1>
     </div>
 
     <nav class="nav nav-pills flex-column gap-1">
-      <a class="nav-link" routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">Dashboard</a>
-      <a class="nav-link" routerLink="/tickets" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">Complaints</a>
-      <a class="nav-link" routerLink="/companies" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">Companies</a>
-      <a class="nav-link" routerLink="/departments" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">Departments</a>
-      <a class="nav-link" routerLink="/activity-logs" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">Activity Logs</a>
+      <a class="nav-link" routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }" title="Dashboard"><span class="nav-icon">D</span><span class="nav-label">Dashboard</span></a>
+      <a class="nav-link" routerLink="/tickets" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }" title="Complaints"><span class="nav-icon">C</span><span class="nav-label">Complaints</span></a>
+      <a class="nav-link" routerLink="/ticket-categories" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }" title="Ticket Categories"><span class="nav-icon">T</span><span class="nav-label">Ticket Categories</span></a>
+      <a class="nav-link" routerLink="/companies" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }" title="Companies"><span class="nav-icon">CO</span><span class="nav-label">Companies</span></a>
+      <a class="nav-link" routerLink="/departments" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }" title="Departments"><span class="nav-icon">DP</span><span class="nav-label">Departments</span></a>
+      <a class="nav-link" routerLink="/activity-logs" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }" title="Activity Logs"><span class="nav-icon">A</span><span class="nav-label">Activity Logs</span></a>
     </nav>
   </aside>
 
   <div class="flex-fill">
-    <header class="border-bottom px-4 py-3 d-flex justify-content-end gap-2">
+    <header class="border-bottom px-4 py-3 d-flex justify-content-between gap-2">
+      <button type="button" class="btn btn-outline-secondary btn-sm" (click)="toggleSidebar()">
+        {{ sidebarCollapsed() ? 'Expand menu' : 'Collapse menu' }}
+      </button>
+      <div class="d-flex gap-2">
       <button type="button" class="btn btn-outline-secondary btn-sm" (click)="themeService.toggle()">
         {{ themeService.isDark() ? 'Light mode' : 'Dark mode' }}
       </button>
       <button type="button" class="btn btn-outline-danger btn-sm" (click)="logout()">Logout</button>
+      </div>
     </header>
 
     <main class="container-fluid p-4">

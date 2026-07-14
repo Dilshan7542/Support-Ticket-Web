@@ -2,10 +2,67 @@
   width: 260px;
   padding: 1.5rem;
   background: var(--neutral-100);
+  transition: width 160ms ease, padding 160ms ease;
+  flex: 0 0 auto;
 }
 
 .brand-logo {
   width: 40px;
   height: 40px;
   object-fit: contain;
+}
+
+.brand-row,
+.nav-link {
+  min-height: 40px;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.nav-icon {
+  width: 28px;
+  min-width: 28px;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.nav-label {
+  white-space: nowrap;
+}
+
+.sidebar-collapsed {
+  .sidebar {
+    width: 84px;
+    padding-inline: 1rem;
+  }
+
+  .nav-label {
+    display: none;
+  }
+
+  .brand-row,
+  .nav-link {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 84px;
+    padding-inline: 1rem;
+  }
+
+  .nav-label {
+    display: none;
+  }
+
+  .brand-row,
+  .nav-link {
+    justify-content: center;
+  }
 }

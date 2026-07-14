@@ -1,6 +1,8 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { distinctUntilChanged } from 'rxjs/operators';
 
 import { Company } from '../../../core/models/company.model';
 import { getApiErrorMessage } from '../../../core/models/api-response.model';
@@ -20,6 +22,7 @@ export class DepartmentList implements OnInit {
   private readonly companyService = inject(CompanyService);
   private readonly route = inject(ActivatedRoute);
   private readonly formBuilder = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
   readonly error = signal<string | null>(null);
   readonly message = signal<string | null>(null);
   readonly companies = signal<Company[]>([]);
@@ -37,6 +40,10 @@ export class DepartmentList implements OnInit {
   ngOnInit(): void {
     const companyId = this.route.snapshot.queryParamMap.get('companyId') ?? '';
     this.form.patchValue({ companyId });
+    this.form.controls.companyId.valueChanges.pipe(
+      distinctUntilChanged(),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(() => this.loadPage(1));
     this.loadCompanies();
     this.loadPage(1);
   }

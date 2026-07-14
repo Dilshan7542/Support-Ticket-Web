@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 import { TokenStorageService } from '../../core/auth/token-storage.service';
@@ -11,6 +11,8 @@ import { ThemeService } from '../../core/services/theme.service';
   styleUrl: './main-layout.scss'
 })
 export class MainLayout {
+  readonly sidebarCollapsed = signal(false);
+
   constructor(
     readonly themeService: ThemeService,
     private readonly tokenStorage: TokenStorageService,
@@ -20,5 +22,9 @@ export class MainLayout {
   logout(): void {
     this.tokenStorage.clear();
     this.router.navigateByUrl('/auth/login');
+  }
+
+  toggleSidebar(): void {
+    this.sidebarCollapsed.update((collapsed) => !collapsed);
   }
 }
