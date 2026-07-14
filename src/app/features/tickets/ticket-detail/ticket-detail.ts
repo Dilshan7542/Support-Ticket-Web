@@ -3,7 +3,10 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
+import { getApiErrorMessage } from '../../../core/models/api-response.model';
+import { Department } from '../../../core/models/department.model';
 import { Ticket } from '../../../core/models/ticket.model';
+import { DepartmentService } from '../../departments/department.service';
 import { TicketService } from '../ticket.service';
 
 @Component({
@@ -14,12 +17,16 @@ import { TicketService } from '../ticket.service';
 })
 export class TicketDetail implements OnInit {
   private readonly ticketService = inject(TicketService);
+  private readonly departmentService = inject(DepartmentService);
   private readonly route = inject(ActivatedRoute);
   private readonly formBuilder = inject(FormBuilder);
 
   readonly ticket = signal<Ticket | null>(null);
+  readonly departments = signal<Department[]>([]);
+  readonly error = signal<string | null>(null);
   readonly statusForm = this.formBuilder.nonNullable.group({
-    status: ['OPEN', Validators.required],
+    status: ['NEW', Validators.required],
+    departmentId: [''],
     assignedTo: ['']
   });
   readonly replyForm = this.formBuilder.nonNullable.group({
@@ -37,15 +44,23 @@ export class TicketDetail implements OnInit {
       return;
     }
 
-    const { status, assignedTo } = this.statusForm.getRawValue();
+    const { status, assignedTo, departmentId } = this.statusForm.getRawValue();
+    const shouldAssign = Boolean(assignedTo.trim() || departmentId);
+
+    if (shouldAssign && !departmentId) {
+      this.error.set('Department is required when assigning a ticket.');
+      return;
+    }
+
+    this.error.set(null);
     this.ticketService.updateStatus(ticket.id, status).subscribe(() => {
-      if (assignedTo.trim()) {
-        this.ticketService.assign(ticket.id, assignedTo.trim(), ticket.departmentId ?? undefined).subscribe(() => this.loadTicket());
+      if (shouldAssign) {
+        this.ticketService.assign(ticket.id, assignedTo.trim() || null, departmentId).subscribe(() => this.loadTicket());
         return;
       }
 
       this.loadTicket();
-    });
+    }, (error) => this.error.set(getApiErrorMessage(error, 'Unable to update ticket')));
   }
 
   addReply(): void {
@@ -68,10 +83,26 @@ export class TicketDetail implements OnInit {
       this.ticketService.detail({ id }).subscribe((ticket) => {
         this.ticket.set(ticket);
         this.statusForm.reset({
-          status: ticket?.status ?? 'OPEN',
+          status: ticket?.status ?? 'NEW',
+          departmentId: ticket?.departmentId ? String(ticket.departmentId) : '',
           assignedTo: ticket?.assignedStaffId ? String(ticket.assignedStaffId) : ''
         });
+        this.loadDepartments(ticket);
       });
     }
+  }
+
+  private loadDepartments(ticket: Ticket): void {
+    if (!ticket.companyId) {
+      this.departments.set([]);
+      return;
+    }
+
+    this.departmentService.list({ companyId: ticket.companyId }).subscribe({
+      next: (departments) => {
+        this.departments.set(departments.filter((department) => department.status !== 'INACTIVE' && department.status !== 'DELETED'));
+      },
+      error: (error) => this.error.set(getApiErrorMessage(error, 'Unable to load departments'))
+    });
   }
 }

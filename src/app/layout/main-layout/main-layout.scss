@@ -12,6 +12,13 @@
   object-fit: contain;
 }
 
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 1020;
+  background: var(--neutral-100);
+}
+
 .brand-row,
 .nav-link {
   min-height: 40px;

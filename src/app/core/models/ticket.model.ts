@@ -71,7 +71,7 @@ export interface UpdateTicketStatusRequest {
 export interface AssignTicketRequest {
   userId: string | number;
   ticketId: string | number;
-  departmentId?: string | number;
+  departmentId: string | number;
   assignedStaffId?: string | number | null;
 }
 

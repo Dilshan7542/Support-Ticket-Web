@@ -67,7 +67,7 @@ export class TicketService {
     return this.api.post<number, AddTicketReplyRequest>(API_ENDPOINTS.tickets.addReply, request);
   }
 
-  assign(ticketId: string | number, assignedStaffId: string | number | null, departmentId?: string | number): Observable<Ticket> {
+  assign(ticketId: string | number, assignedStaffId: string | number | null, departmentId: string | number): Observable<Ticket> {
     const request: AssignTicketRequest = {
       userId: this.tokenStorage.getUserId() ?? '',
       ticketId,

@@ -32,12 +32,25 @@
       <form class="card border-0 shadow-sm" [formGroup]="statusForm" (ngSubmit)="updateStatus()">
         <div class="card-body vstack gap-3">
           <h3 class="h5 mb-0">Admin Controls</h3>
+          @if (error()) {
+            <div class="alert alert-danger mb-0">{{ error() }}</div>
+          }
           <select class="form-select" formControlName="status">
-            <option value="OPEN">Open</option>
+            <option value="NEW">New</option>
+            <option value="ASSIGNED">Assigned</option>
             <option value="IN_PROGRESS">In progress</option>
-            <option value="WAITING_CUSTOMER">Waiting customer</option>
+            <option value="WAITING_FOR_CUSTOMER">Waiting customer</option>
             <option value="RESOLVED">Resolved</option>
             <option value="CLOSED">Closed</option>
+            <option value="REOPENED">Reopened</option>
+          </select>
+          <select class="form-select" formControlName="departmentId">
+            <option value="">Select department</option>
+            @for (department of departments(); track department.id) {
+              <option [value]="department.id">
+                {{ department.name }}{{ department.code ? ' (' + department.code + ')' : '' }}
+              </option>
+            }
           </select>
           <input class="form-control" formControlName="assignedTo" placeholder="Assigned staff id" />
           <button class="btn btn-primary" type="submit">Update complaint</button>
