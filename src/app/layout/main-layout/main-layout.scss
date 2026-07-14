@@ -4,6 +4,10 @@
   background: var(--neutral-100);
   transition: width 160ms ease, padding 160ms ease;
   flex: 0 0 auto;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
 }
 
 .brand-logo {
