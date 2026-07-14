@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, throwError } from 'rxjs';
+import { catchError, map, shareReplay, tap } from 'rxjs/operators';
 
 import { TokenStorageService } from '../../core/auth/token-storage.service';
 import { API_ENDPOINTS } from '../../core/constants/api-endpoints';
@@ -12,16 +12,36 @@ import { Department } from '../../core/models/department.model';
 export class DepartmentService {
   private readonly api = inject(ApiClientService);
   private readonly tokenStorage = inject(TokenStorageService);
+  private readonly listCache = new Map<string, Observable<Department[]>>();
 
   create(request: Partial<Department>): Observable<Department> {
     return this.api.post<Department>(API_ENDPOINTS.departments.create, {
       userId: this.getUserId(),
       ...this.normalizeDepartmentRequest(request)
-    });
+    }).pipe(tap(() => this.clearListCache()));
   }
 
   list(request: ListRequest = {}): Observable<Department[]> {
-    return this.listPage({ page: 0, size: 100, ...request }).pipe(map((page) => page.content));
+    const listRequest = this.normalizeDepartmentRequest({ page: 0, size: 100, ...request });
+    const cacheKey = this.getCacheKey(listRequest);
+    const cachedList = this.listCache.get(cacheKey);
+
+    if (cachedList) {
+      return cachedList;
+    }
+
+    const list$ = this.listPage(listRequest).pipe(
+      map((page) => page.content),
+      catchError((error) => {
+        this.listCache.delete(cacheKey);
+        return throwError(() => error);
+      }),
+      shareReplay({ bufferSize: 1, refCount: false })
+    );
+
+    this.listCache.set(cacheKey, list$);
+
+    return list$;
   }
 
   listPage(request: ListRequest = {}): Observable<PageResponse<Department>> {
@@ -46,14 +66,18 @@ export class DepartmentService {
       userId: this.getUserId(),
       departmentId: this.toNumber(id),
       ...this.normalizeDepartmentRequest(changes)
-    });
+    }).pipe(tap(() => this.clearListCache()));
   }
 
   delete(id: string | number): Observable<void> {
     return this.api.post<void>(API_ENDPOINTS.departments.delete, {
       userId: this.getUserId(),
       departmentId: this.toNumber(id)
-    });
+    }).pipe(tap(() => this.clearListCache()));
+  }
+
+  clearListCache(): void {
+    this.listCache.clear();
   }
 
   private normalizeDepartmentRequest<TRequest extends Partial<Department> | ListRequest>(request: TRequest): TRequest {
@@ -73,5 +97,12 @@ export class DepartmentService {
     }
 
     return Number(value);
+  }
+
+  private getCacheKey(request: ListRequest): string {
+    return JSON.stringify(Object.keys(request).sort().reduce<Record<string, unknown>>((cacheKey, key) => {
+      cacheKey[key] = request[key as keyof ListRequest];
+      return cacheKey;
+    }, {}));
   }
 }

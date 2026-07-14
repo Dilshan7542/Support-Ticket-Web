@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { finalize } from 'rxjs/operators';
@@ -27,6 +27,7 @@ export class TicketCreate implements OnInit {
   private readonly ticketCategoryService = inject(TicketCategoryService);
   private readonly ticketService = inject(TicketService);
   private readonly tokenStorage = inject(TokenStorageService);
+  private readonly changeDetectorRef = inject(ChangeDetectorRef);
 
   loading = false;
   categoriesLoading = false;
@@ -81,6 +82,7 @@ export class TicketCreate implements OnInit {
     }).pipe(
       finalize(() => {
         this.categoriesLoading = false;
+        this.notifyView();
       })
     ).subscribe({
       next: (categories) => {
@@ -96,9 +98,11 @@ export class TicketCreate implements OnInit {
           this.form.controls.categoryCode.setValue(this.categories[0].code);
         }
 
+        this.notifyView();
       },
       error: (error) => {
         this.categoriesError = getApiErrorMessage(error, 'Unable to load ticket categories');
+        this.notifyView();
       }
     });
   }
@@ -110,6 +114,7 @@ export class TicketCreate implements OnInit {
     this.companyService.list().pipe(
       finalize(() => {
         this.companiesLoading = false;
+        this.notifyView();
       })
     ).subscribe({
       next: (companies) => {
@@ -120,10 +125,12 @@ export class TicketCreate implements OnInit {
         }
 
         this.loadDepartments(true);
+        this.notifyView();
       },
       error: (error) => {
         this.companiesError = getApiErrorMessage(error, 'Unable to load companies');
         this.loadCategories();
+        this.notifyView();
       }
     });
   }
@@ -137,6 +144,7 @@ export class TicketCreate implements OnInit {
     this.departmentService.list(companyId ? { companyId } : {}).pipe(
       finalize(() => {
         this.departmentsLoading = false;
+        this.notifyView();
       })
     ).subscribe({
       next: (departments) => {
@@ -152,10 +160,12 @@ export class TicketCreate implements OnInit {
         }
 
         this.loadCategories();
+        this.notifyView();
       },
       error: (error) => {
         this.departmentsError = getApiErrorMessage(error, 'Unable to load departments');
         this.loadCategories();
+        this.notifyView();
       }
     });
   }
@@ -178,6 +188,7 @@ export class TicketCreate implements OnInit {
     }).pipe(
       finalize(() => {
         this.loading = false;
+        this.notifyView();
       })
     ).subscribe({
       next: (ticket) => {
@@ -192,9 +203,11 @@ export class TicketCreate implements OnInit {
           description: ''
         });
         this.loadDepartments(true);
+        this.notifyView();
       },
       error: (error) => {
         this.error = getApiErrorMessage(error, 'Unable to create ticket');
+        this.notifyView();
       }
     });
   }
@@ -218,5 +231,9 @@ export class TicketCreate implements OnInit {
     return callerDetails.length
       ? `${callerDetails.join('\n')}\n\nComplaint:\n${formValue.description}`
       : formValue.description;
+  }
+
+  private notifyView(): void {
+    this.changeDetectorRef.markForCheck();
   }
 }

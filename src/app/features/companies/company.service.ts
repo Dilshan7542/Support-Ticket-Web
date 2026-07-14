@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, throwError } from 'rxjs';
+import { catchError, map, shareReplay, tap } from 'rxjs/operators';
 
 import { TokenStorageService } from '../../core/auth/token-storage.service';
 import { API_ENDPOINTS } from '../../core/constants/api-endpoints';
@@ -12,16 +12,36 @@ import { DetailRequest, ListRequest, PageResponse } from '../../core/models/api-
 export class CompanyService {
   private readonly api = inject(ApiClientService);
   private readonly tokenStorage = inject(TokenStorageService);
+  private readonly listCache = new Map<string, Observable<Company[]>>();
 
   create(request: Partial<Company>): Observable<Company> {
     return this.api.post<Company>(API_ENDPOINTS.companies.create, {
       userId: this.getUserId(),
       ...request
-    });
+    }).pipe(tap(() => this.clearListCache()));
   }
 
   list(request: ListRequest = {}): Observable<Company[]> {
-    return this.listPage({ page: 0, size: 100, ...request }).pipe(map((page) => page.content));
+    const listRequest = { page: 0, size: 100, ...request };
+    const cacheKey = this.getCacheKey(listRequest);
+    const cachedList = this.listCache.get(cacheKey);
+
+    if (cachedList) {
+      return cachedList;
+    }
+
+    const list$ = this.listPage(listRequest).pipe(
+      map((page) => page.content),
+      catchError((error) => {
+        this.listCache.delete(cacheKey);
+        return throwError(() => error);
+      }),
+      shareReplay({ bufferSize: 1, refCount: false })
+    );
+
+    this.listCache.set(cacheKey, list$);
+
+    return list$;
   }
 
   listPage(request: ListRequest = {}): Observable<PageResponse<Company>> {
@@ -45,7 +65,11 @@ export class CompanyService {
       userId: this.getUserId(),
       companyId: this.toNumber(id),
       ...changes
-    });
+    }).pipe(tap(() => this.clearListCache()));
+  }
+
+  clearListCache(): void {
+    this.listCache.clear();
   }
 
   private getUserId(): number | null {
@@ -58,5 +82,12 @@ export class CompanyService {
     }
 
     return Number(value);
+  }
+
+  private getCacheKey(request: ListRequest): string {
+    return JSON.stringify(Object.keys(request).sort().reduce<Record<string, unknown>>((cacheKey, key) => {
+      cacheKey[key] = request[key as keyof ListRequest];
+      return cacheKey;
+    }, {}));
   }
 }
