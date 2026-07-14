@@ -23,8 +23,7 @@ export const API_ENDPOINTS = {
     create: '/api/v1/departments/create',
     list: '/api/v1/departments/list',
     detail: '/api/v1/departments/detail',
-    update: '/api/v1/departments/update',
-    delete: '/api/v1/departments/delete'
+    update: '/api/v1/departments/update'
   },
   companies: {
     create: '/api/v1/companies/create',
@@ -52,7 +51,10 @@ export const API_ENDPOINTS = {
     update: '/api/v1/ticket-category-mappings/update'
   },
   ticketStatuses: {
-    list: '/api/v1/ticket-statuses/list'
+    create: '/api/v1/ticket-statuses/create',
+    list: '/api/v1/ticket-statuses/list',
+    detail: '/api/v1/ticket-statuses/detail',
+    update: '/api/v1/ticket-statuses/update'
   },
   health: {
     status: '/api/v1/health/status'

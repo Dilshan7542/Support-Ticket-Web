@@ -69,10 +69,11 @@ export class DepartmentService {
     }).pipe(tap(() => this.clearListCache()));
   }
 
-  delete(id: string | number): Observable<void> {
-    return this.api.post<void>(API_ENDPOINTS.departments.delete, {
+  delete(id: string | number): Observable<Department> {
+    return this.api.post<Department>(API_ENDPOINTS.departments.update, {
       userId: this.getUserId(),
-      departmentId: this.toNumber(id)
+      departmentId: this.toNumber(id),
+      status: 'DELETED'
     }).pipe(tap(() => this.clearListCache()));
   }
 
