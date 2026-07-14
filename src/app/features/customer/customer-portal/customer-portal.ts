@@ -3,7 +3,9 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
+import { Company } from '../../../core/models/company.model';
 import { Ticket } from '../../../core/models/ticket.model';
+import { CompanyService } from '../../companies/company.service';
 import { TicketService } from '../../tickets/ticket.service';
 
 @Component({
@@ -14,20 +16,25 @@ import { TicketService } from '../../tickets/ticket.service';
 })
 export class CustomerPortal implements OnInit {
   private readonly formBuilder = inject(FormBuilder);
+  private readonly companyService = inject(CompanyService);
   private readonly ticketService = inject(TicketService);
   private readonly identityKey = 'support_ticket_customer_identity';
 
   readonly customer = signal(localStorage.getItem(this.identityKey) ?? '');
+  readonly companies = signal<Company[]>([]);
   readonly tickets = signal<Ticket[]>([]);
   readonly created = signal(false);
 
   readonly form = this.formBuilder.nonNullable.group({
+    companyId: ['', Validators.required],
     subject: ['', Validators.required],
     description: ['', Validators.required],
     priority: ['MEDIUM', Validators.required]
   });
 
   ngOnInit(): void {
+    this.loadCompanies();
+
     if (this.customer()) {
       this.loadTickets();
     }
@@ -38,11 +45,13 @@ export class CustomerPortal implements OnInit {
       return;
     }
 
+    const formValue = this.form.getRawValue();
+
     this.ticketService.create({
-      ...this.form.getRawValue(),
+      ...formValue,
       userId: this.customer()
     }).subscribe(() => {
-      this.form.reset({ subject: '', description: '', priority: 'MEDIUM' });
+      this.form.reset({ companyId: formValue.companyId, subject: '', description: '', priority: 'MEDIUM' });
       this.created.set(true);
       this.loadTickets();
     });
@@ -52,6 +61,18 @@ export class CustomerPortal implements OnInit {
     localStorage.removeItem(this.identityKey);
     this.customer.set('');
     this.tickets.set([]);
+  }
+
+  private loadCompanies(): void {
+    this.companyService.list().subscribe((companies) => {
+      const activeCompanies = companies.filter((company) => company.status !== 'INACTIVE' && company.status !== 'DELETED');
+
+      this.companies.set(activeCompanies);
+
+      if (!this.form.controls.companyId.value && activeCompanies.length > 0) {
+        this.form.controls.companyId.setValue(String(activeCompanies[0].id));
+      }
+    });
   }
 
   private loadTickets(): void {

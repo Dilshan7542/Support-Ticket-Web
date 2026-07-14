@@ -45,6 +45,12 @@ export const API_ENDPOINTS = {
     detail: '/api/v1/ticket-categories/detail',
     update: '/api/v1/ticket-categories/update'
   },
+  ticketCategoryMappings: {
+    create: '/api/v1/ticket-category-mappings/create',
+    list: '/api/v1/ticket-category-mappings/list',
+    detail: '/api/v1/ticket-category-mappings/detail',
+    update: '/api/v1/ticket-category-mappings/update'
+  },
   ticketStatuses: {
     list: '/api/v1/ticket-statuses/list'
   },

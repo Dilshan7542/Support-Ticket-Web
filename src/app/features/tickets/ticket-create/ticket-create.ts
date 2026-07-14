@@ -47,44 +47,36 @@ export class TicketCreate implements OnInit {
   readonly form = this.formBuilder.nonNullable.group({
     callerName: [''],
     callerContact: [''],
-    companyId: [''],
+    companyId: ['', Validators.required],
     departmentId: [''],
     subject: ['', Validators.required],
-    categoryCode: ['', Validators.required],
+    categoryCode: [''],
     description: ['', Validators.required],
   });
 
   ngOnInit(): void {
     this.registerDropdownEvents();
     this.loadCompanies();
+    this.loadCategories();
   }
 
   onCompanyChange(): void {
     this.form.controls.departmentId.setValue('', { emitEvent: false });
-    this.form.controls.categoryCode.setValue('', { emitEvent: false });
     this.departments = [];
-    this.categories = [];
     this.loadDepartments(true);
   }
 
   onDepartmentChange(): void {
-    this.form.controls.categoryCode.setValue('', { emitEvent: false });
-    this.categories = [];
-    this.loadCategories();
+    this.notifyView();
   }
 
   loadCategories(): void {
     this.categoriesLoading = true;
     this.categoriesError = null;
 
-    const companyId = this.form.controls.companyId.value;
-    const departmentId = this.form.controls.departmentId.value;
-
     this.ticketCategoryService.list({
       page: 0,
-      size: 100,
-      ...(companyId ? { companyId } : {}),
-      ...(departmentId ? { departmentId } : {})
+      size: 100
     }).pipe(
       finalize(() => {
         this.categoriesLoading = false;
@@ -94,15 +86,9 @@ export class TicketCreate implements OnInit {
       next: (categories) => {
         this.categories = categories.filter((category) => {
           const isActive = category.status !== 'INACTIVE' && category.status !== 'DELETED';
-          const belongsToSelectedCompany = !companyId || !category.companyId || String(category.companyId) === String(companyId);
-          const belongsToSelectedDepartment = !departmentId || !category.departmentId || String(category.departmentId) === String(departmentId);
 
-          return isActive && belongsToSelectedCompany && belongsToSelectedDepartment;
+          return isActive;
         });
-
-        if (!this.form.controls.categoryCode.value && this.categories.length > 0) {
-          this.form.controls.categoryCode.setValue(this.categories[0].code);
-        }
 
         this.notifyView();
       },
@@ -165,12 +151,10 @@ export class TicketCreate implements OnInit {
           this.form.controls.departmentId.setValue(String(this.departments[0].id), { emitEvent: false });
         }
 
-        this.loadCategories();
         this.notifyView();
       },
       error: (error) => {
         this.departmentsError = getApiErrorMessage(error, 'Unable to load departments');
-        this.loadCategories();
         this.notifyView();
       }
     });
@@ -188,8 +172,9 @@ export class TicketCreate implements OnInit {
 
     this.ticketService.create({
       userId: this.tokenStorage.getUserId() ?? '',
+      companyId: formValue.companyId,
       subject: formValue.subject,
-      categoryCode: formValue.categoryCode,
+      categoryCode: formValue.categoryCode || null,
       description: this.buildDescription(formValue)
     }).pipe(
       finalize(() => {
@@ -198,17 +183,25 @@ export class TicketCreate implements OnInit {
       })
     ).subscribe({
       next: (ticket) => {
+        const firstCompanyId = this.companies.length > 0 ? String(this.companies[0].id) : '';
+
         this.createdTicket = ticket;
         this.form.reset({
           callerName: '',
           callerContact: '',
-          companyId: '',
+          companyId: firstCompanyId,
           departmentId: '',
           subject: '',
-          categoryCode: this.categories[0]?.code ?? '',
+          categoryCode: '',
           description: ''
         }, { emitEvent: false });
-        this.loadDepartments(true);
+
+        if (firstCompanyId) {
+          this.loadDepartments(true);
+        } else {
+          this.departments = [];
+        }
+
         this.notifyView();
       },
       error: (error) => {
@@ -222,16 +215,13 @@ export class TicketCreate implements OnInit {
     callerName: string;
     callerContact: string;
     companyId: string;
-    departmentId: string;
     description: string;
   }): string {
     const company = this.companies.find((item) => String(item.id) === String(formValue.companyId));
-    const department = this.departments.find((item) => String(item.id) === String(formValue.departmentId));
     const callerDetails = [
       formValue.callerName ? `Caller name: ${formValue.callerName}` : '',
       formValue.callerContact ? `Caller contact: ${formValue.callerContact}` : '',
-      company ? `Company: ${company.name} (${company.code})` : '',
-      department ? `Department: ${department.name}${department.code ? ` (${department.code})` : ''}` : ''
+      company ? `Company: ${company.name} (${company.code})` : ''
     ].filter(Boolean);
 
     return callerDetails.length

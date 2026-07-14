@@ -32,6 +32,16 @@
             <p class="app-muted mb-0">Describe the issue clearly so support can respond.</p>
           </div>
 
+          @if (companies().length > 0) {
+            <select class="form-select" formControlName="companyId">
+              @for (company of companies(); track company.id) {
+                <option [value]="company.id">{{ company.name }} ({{ company.code }})</option>
+              }
+            </select>
+          } @else {
+            <div class="form-control app-muted">No companies found</div>
+          }
+
           <input class="form-control" formControlName="subject" placeholder="Complaint subject" />
           <textarea class="form-control" formControlName="description" rows="6" placeholder="Complaint details"></textarea>
           <select class="form-select" formControlName="priority">

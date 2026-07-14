@@ -22,7 +22,7 @@ export class TicketCategoryService {
       userId: this.getUserId(),
       page: 0,
       size: 100,
-      ...this.normalizeCategoryRequest(request)
+      ...request
     });
   }
 
@@ -36,7 +36,7 @@ export class TicketCategoryService {
   create(request: Partial<TicketCategory>): Observable<TicketCategory> {
     return this.api.post<TicketCategory>(API_ENDPOINTS.ticketCategories.create, {
       userId: this.getUserId(),
-      ...this.normalizeCategoryRequest(request)
+      ...request
     });
   }
 
@@ -45,16 +45,8 @@ export class TicketCategoryService {
     return this.api.post<TicketCategory>(API_ENDPOINTS.ticketCategories.update, {
       userId: this.getUserId(),
       categoryId: this.toNumber(id),
-      ...this.normalizeCategoryRequest(changes)
+      ...changes
     });
-  }
-
-  private normalizeCategoryRequest<TRequest extends Partial<TicketCategory> | ListRequest>(request: TRequest): TRequest {
-    return {
-      ...request,
-      companyId: this.toNumber(request.companyId as string | number | null | undefined),
-      departmentId: this.toNumber(request.departmentId as string | number | null | undefined)
-    } as TRequest;
   }
 
   private getUserId(): number | null {

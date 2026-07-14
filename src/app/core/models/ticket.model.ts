@@ -52,6 +52,7 @@ export interface Ticket {
 }
 
 export interface CreateTicketRequest {
+  companyId: string | number;
   subject: string;
   description: string;
   category?: string;
