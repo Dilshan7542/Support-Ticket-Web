@@ -54,7 +54,6 @@
             id="companyId"
             class="form-select"
             formControlName="companyId"
-            (change)="onCompanyChange()"
           >
             <option value="">Select company</option>
             @for (company of companies; track company.id) {
@@ -76,7 +75,6 @@
           id="departmentId"
           class="form-select"
           formControlName="departmentId"
-          (change)="onDepartmentChange()"
         >
           <option value="">Select department</option>
           @for (department of departments; track department.id) {

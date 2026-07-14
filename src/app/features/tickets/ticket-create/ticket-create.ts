@@ -1,7 +1,8 @@
-import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { finalize } from 'rxjs/operators';
+import { distinctUntilChanged, finalize } from 'rxjs/operators';
 
 import { TokenStorageService } from '../../../core/auth/token-storage.service';
 import { Company } from '../../../core/models/company.model';
@@ -28,6 +29,7 @@ export class TicketCreate implements OnInit {
   private readonly ticketService = inject(TicketService);
   private readonly tokenStorage = inject(TokenStorageService);
   private readonly changeDetectorRef = inject(ChangeDetectorRef);
+  private readonly destroyRef = inject(DestroyRef);
 
   loading = false;
   categoriesLoading = false;
@@ -53,17 +55,21 @@ export class TicketCreate implements OnInit {
   });
 
   ngOnInit(): void {
+    this.registerDropdownEvents();
     this.loadCompanies();
   }
 
   onCompanyChange(): void {
-    this.form.controls.departmentId.setValue('');
-    this.form.controls.categoryCode.setValue('');
+    this.form.controls.departmentId.setValue('', { emitEvent: false });
+    this.form.controls.categoryCode.setValue('', { emitEvent: false });
+    this.departments = [];
+    this.categories = [];
     this.loadDepartments(true);
   }
 
   onDepartmentChange(): void {
-    this.form.controls.categoryCode.setValue('');
+    this.form.controls.categoryCode.setValue('', { emitEvent: false });
+    this.categories = [];
     this.loadCategories();
   }
 
@@ -122,9 +128,9 @@ export class TicketCreate implements OnInit {
 
         if (!this.form.controls.companyId.value && this.companies.length > 0) {
           this.form.controls.companyId.setValue(String(this.companies[0].id));
+        } else {
+          this.loadDepartments(true);
         }
-
-        this.loadDepartments(true);
         this.notifyView();
       },
       error: (error) => {
@@ -155,8 +161,8 @@ export class TicketCreate implements OnInit {
           return isActive && belongsToSelectedCompany;
         });
 
-        if (selectFirst && !this.form.controls.departmentId.value && this.departments.length > 0) {
-          this.form.controls.departmentId.setValue(String(this.departments[0].id));
+        if (selectFirst && this.departments.length > 0) {
+          this.form.controls.departmentId.setValue(String(this.departments[0].id), { emitEvent: false });
         }
 
         this.loadCategories();
@@ -201,7 +207,7 @@ export class TicketCreate implements OnInit {
           subject: '',
           categoryCode: this.categories[0]?.code ?? '',
           description: ''
-        });
+        }, { emitEvent: false });
         this.loadDepartments(true);
         this.notifyView();
       },
@@ -235,5 +241,17 @@ export class TicketCreate implements OnInit {
 
   private notifyView(): void {
     this.changeDetectorRef.markForCheck();
+  }
+
+  private registerDropdownEvents(): void {
+    this.form.controls.companyId.valueChanges.pipe(
+      distinctUntilChanged(),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(() => this.onCompanyChange());
+
+    this.form.controls.departmentId.valueChanges.pipe(
+      distinctUntilChanged(),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(() => this.onDepartmentChange());
   }
 }
