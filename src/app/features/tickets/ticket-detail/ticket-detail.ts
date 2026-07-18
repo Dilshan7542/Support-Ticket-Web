@@ -3,6 +3,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
+import { TokenStorageService } from '../../../core/auth/token-storage.service';
 import { getApiErrorMessage } from '../../../core/models/api-response.model';
 import { Department } from '../../../core/models/department.model';
 import { Ticket } from '../../../core/models/ticket.model';
@@ -20,10 +21,12 @@ export class TicketDetail implements OnInit {
   private readonly departmentService = inject(DepartmentService);
   private readonly route = inject(ActivatedRoute);
   private readonly formBuilder = inject(FormBuilder);
+  private readonly tokenStorage = inject(TokenStorageService);
 
   readonly ticket = signal<Ticket | null>(null);
   readonly departments = signal<Department[]>([]);
   readonly error = signal<string | null>(null);
+  readonly replyError = signal<string | null>(null);
   readonly statusForm = this.formBuilder.nonNullable.group({
     status: ['NEW', Validators.required],
     departmentId: [''],
@@ -74,10 +77,18 @@ export class TicketDetail implements OnInit {
       return;
     }
 
-    this.ticketService.addReply(ticket.id, this.replyForm.controls.message.value).subscribe(() => {
-      this.replyForm.reset({ message: '' });
-      this.loadTicket();
+    this.replyError.set(null);
+    this.ticketService.addReply(ticket.id, this.replyForm.controls.message.value).subscribe({
+      next: () => {
+        this.replyForm.reset({ message: '' });
+        this.loadTicket();
+      },
+      error: (error) => this.replyError.set(getApiErrorMessage(error, 'Unable to send reply'))
     });
+  }
+
+  isOwnReply(userId: string | number): boolean {
+    return String(userId) === String(this.tokenStorage.getUserId() ?? '');
   }
 
   private loadTicket(): void {

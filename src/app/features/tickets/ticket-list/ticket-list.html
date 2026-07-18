@@ -35,9 +35,9 @@
       @for (ticket of store.tickets(); track ticket.id) {
         <tr>
           <td>
-            <strong>{{ ticket.ticketNo || ticket.subject }}</strong>
+            <strong>{{ ticket.ticketNo || ticket.title || ticket.subject }}</strong>
             @if (ticket.ticketNo) {
-              <div class="app-muted small">{{ ticket.subject }}</div>
+              <div class="app-muted small">{{ ticket.title || ticket.subject }}</div>
             }
           </td>
           <td>{{ ticket.companyName || ticket.companyId || 'No company' }}</td>

@@ -28,15 +28,48 @@
   background: var(--primary-500);
 }
 
+.complaint-row {
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.complaint-row:hover,
+.complaint-row-active {
+  border-color: var(--primary-500) !important;
+  background: var(--primary-50);
+}
+
+.customer-ticket-detail {
+  grid-column: 2;
+}
+
 .reply-box {
   border-left: 3px solid var(--primary-500);
   padding-left: 0.75rem;
+}
+
+.chat-message {
+  max-width: 90%;
+  border: 1px solid var(--neutral-200);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--neutral-100);
+}
+
+.chat-message-own {
+  align-self: flex-end;
+  background: var(--primary-50);
+  border-color: var(--primary-200);
 }
 
 @media (max-width: 820px) {
   .customer-header,
   .customer-grid {
     grid-template-columns: 1fr;
+  }
+
+  .customer-ticket-detail {
+    grid-column: auto;
   }
 
   .customer-header {

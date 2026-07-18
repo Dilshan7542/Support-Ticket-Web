@@ -6,10 +6,8 @@ import { finalize } from 'rxjs';
 
 import { AuthService } from '../../../core/auth/auth.service';
 import { TokenStorageService } from '../../../core/auth/token-storage.service';
-import { Company } from '../../../core/models/company.model';
 import { getApiErrorMessage } from '../../../core/models/api-response.model';
 import { Ticket } from '../../../core/models/ticket.model';
-import { CompanyService } from '../../companies/company.service';
 import { TicketService } from '../../tickets/ticket.service';
 
 @Component({
@@ -22,18 +20,22 @@ export class CustomerPortal implements OnInit {
   private readonly formBuilder = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly tokenStorage = inject(TokenStorageService);
-  private readonly companyService = inject(CompanyService);
   private readonly ticketService = inject(TicketService);
 
   readonly customer = signal(this.tokenStorage.getUserId() ?? '');
-  readonly companies = signal<Company[]>([]);
   readonly tickets = signal<Ticket[]>([]);
+  readonly selectedTicket = signal<Ticket | null>(null);
+  readonly selectedTicketLoading = signal(false);
+  readonly selectedTicketError = signal<string | null>(null);
   readonly created = signal(false);
   readonly loginLoading = signal(false);
   readonly loginError = signal<string | null>(null);
   readonly submitting = signal(false);
   readonly submitError = signal<string | null>(null);
   readonly attachment = signal<File | null>(null);
+  readonly replyDrafts = signal<Record<string, string>>({});
+  readonly replySubmitting = signal<Record<string, boolean>>({});
+  readonly replyErrors = signal<Record<string, string>>({});
 
   readonly loginForm = this.formBuilder.nonNullable.group({
     username: ['', Validators.required],
@@ -41,14 +43,11 @@ export class CustomerPortal implements OnInit {
   });
 
   readonly form = this.formBuilder.nonNullable.group({
-    companyId: ['', Validators.required],
-    subject: ['', Validators.required],
-    description: ['', Validators.required]
+    title: ['', Validators.required],
+    message: ['', Validators.required]
   });
 
   ngOnInit(): void {
-    this.loadCompanies();
-
     if (this.customer()) {
       this.loadTickets();
     }
@@ -65,22 +64,24 @@ export class CustomerPortal implements OnInit {
     this.submitting.set(true);
     this.submitError.set(null);
     this.ticketService.create({
-      ...formValue,
-      userId: this.customer()
+      userId: this.customer(),
+      title: formValue.title,
+      message: formValue.message,
+      attachmentIds: []
     }).subscribe({
       next: (ticket) => {
         if (attachment) {
           this.ticketService.uploadAttachment(attachment, ticket.id).subscribe({
-            next: () => this.finishSubmit(formValue.companyId),
+            next: () => this.finishSubmit(),
             error: (error) => {
               this.submitError.set(getApiErrorMessage(error, 'Ticket created, but attachment upload failed'));
-              this.finishSubmit(formValue.companyId);
+              this.finishSubmit();
             }
           });
           return;
         }
 
-        this.finishSubmit(formValue.companyId);
+        this.finishSubmit();
       },
       error: (error) => {
         this.submitError.set(getApiErrorMessage(error, 'Unable to submit complaint'));
@@ -92,6 +93,73 @@ export class CustomerPortal implements OnInit {
   onAttachmentSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.attachment.set(input.files?.[0] ?? null);
+  }
+
+  openTicket(ticket: Ticket): void {
+    this.selectedTicket.set(ticket);
+    this.selectedTicketLoading.set(true);
+    this.selectedTicketError.set(null);
+
+    this.ticketService.detail({ id: ticket.id }).subscribe({
+      next: (detail) => {
+        this.selectedTicket.set(detail);
+        this.selectedTicketLoading.set(false);
+      },
+      error: (error) => {
+        this.selectedTicketError.set(getApiErrorMessage(error, 'Unable to load complaint details'));
+        this.selectedTicketLoading.set(false);
+      }
+    });
+  }
+
+  closeTicket(): void {
+    this.selectedTicket.set(null);
+    this.selectedTicketError.set(null);
+  }
+
+  updateReplyDraft(ticketId: string | number, event: Event): void {
+    const input = event.target as HTMLTextAreaElement;
+    const key = String(ticketId);
+
+    this.replyDrafts.update((drafts) => ({
+      ...drafts,
+      [key]: input.value
+    }));
+  }
+
+  addReply(ticket: Ticket): void {
+    const key = String(ticket.id);
+    const message = this.replyDrafts()[key]?.trim() ?? '';
+
+    if (!message || this.replySubmitting()[key]) {
+      return;
+    }
+
+    this.replySubmitting.update((state) => ({ ...state, [key]: true }));
+    this.replyErrors.update((errors) => {
+      const { [key]: _removed, ...rest } = errors;
+      return rest;
+    });
+
+    this.ticketService.addReply(ticket.id, message).subscribe({
+      next: () => {
+        this.replyDrafts.update((drafts) => ({ ...drafts, [key]: '' }));
+        this.replySubmitting.update((state) => ({ ...state, [key]: false }));
+        this.openTicket(ticket);
+        this.loadTickets();
+      },
+      error: (error) => {
+        this.replyErrors.update((errors) => ({
+          ...errors,
+          [key]: getApiErrorMessage(error, 'Unable to send reply')
+        }));
+        this.replySubmitting.update((state) => ({ ...state, [key]: false }));
+      }
+    });
+  }
+
+  isOwnReply(userId: string | number): boolean {
+    return String(userId) === this.customer();
   }
 
   login(): void {
@@ -119,7 +187,6 @@ export class CustomerPortal implements OnInit {
         this.customer.set(this.tokenStorage.getUserId() ?? '');
         this.loginForm.reset({ username: '', password: '' });
         this.created.set(false);
-        this.loadCompanies();
         this.loadTickets();
       },
       error: (error) => this.loginError.set(getApiErrorMessage(error, 'Invalid customer username or password'))
@@ -130,21 +197,13 @@ export class CustomerPortal implements OnInit {
     this.tokenStorage.clear();
     this.customer.set('');
     this.tickets.set([]);
+    this.selectedTicket.set(null);
     this.created.set(false);
     this.attachment.set(null);
+    this.replyDrafts.set({});
+    this.replySubmitting.set({});
+    this.replyErrors.set({});
     this.loginForm.reset({ username: '', password: '' });
-  }
-
-  private loadCompanies(): void {
-    this.companyService.list().subscribe((companies) => {
-      const activeCompanies = companies.filter((company) => company.status !== 'INACTIVE' && company.status !== 'DELETED');
-
-      this.companies.set(activeCompanies);
-
-      if (!this.form.controls.companyId.value && activeCompanies.length > 0) {
-        this.form.controls.companyId.setValue(String(activeCompanies[0].id));
-      }
-    });
   }
 
   private loadTickets(): void {
@@ -153,11 +212,10 @@ export class CustomerPortal implements OnInit {
     });
   }
 
-  private finishSubmit(companyId: string): void {
+  private finishSubmit(): void {
     this.form.reset({
-      companyId,
-      subject: '',
-      description: ''
+      title: '',
+      message: ''
     });
     this.attachment.set(null);
     this.created.set(true);

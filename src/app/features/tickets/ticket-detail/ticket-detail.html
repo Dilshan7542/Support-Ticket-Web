@@ -9,14 +9,14 @@
       <div class="card-body">
         <div class="d-flex justify-content-between gap-3 mb-3">
           <div>
-            <h3 class="h5 mb-1">{{ selectedTicket.subject }}</h3>
+            <h3 class="h5 mb-1">{{ selectedTicket.title || selectedTicket.subject }}</h3>
             <p class="app-muted mb-0">Customer: {{ selectedTicket.customerId || 'Unknown' }}</p>
             <p class="app-muted mb-0">Company: {{ selectedTicket.companyName || selectedTicket.companyId || 'No company' }}</p>
           </div>
           <span class="badge text-bg-secondary align-self-start">{{ selectedTicket.status }}</span>
         </div>
 
-        <p>{{ selectedTicket.description }}</p>
+        <p>{{ selectedTicket.message || selectedTicket.description }}</p>
         <dl class="row mb-0">
           <dt class="col-sm-3">Priority</dt>
           <dd class="col-sm-9">{{ selectedTicket.priority || 'No priority' }}</dd>
@@ -61,6 +61,9 @@
         <div class="card-body vstack gap-3">
           <h3 class="h5 mb-0">Reply</h3>
           <textarea class="form-control" rows="4" formControlName="message" placeholder="Message to customer"></textarea>
+          @if (replyError()) {
+            <div class="alert alert-danger mb-0">{{ replyError() }}</div>
+          }
           <button class="btn btn-outline-primary" type="submit" [disabled]="replyForm.invalid">Send reply</button>
         </div>
       </form>
@@ -94,8 +97,8 @@
       <h3 class="h5 mb-3">Replies</h3>
       <div class="vstack gap-3">
         @for (reply of selectedTicket.replies; track reply.id) {
-          <div class="border rounded p-3">
-            <strong>{{ reply.userId }}</strong>
+          <div class="chat-message" [class.chat-message-own]="isOwnReply(reply.userId)">
+            <strong>{{ isOwnReply(reply.userId) ? 'You' : 'Customer' }}</strong>
             <p class="mb-1">{{ reply.message }}</p>
             <small class="app-muted">{{ reply.createdAt | date:'medium' }}</small>
           </div>

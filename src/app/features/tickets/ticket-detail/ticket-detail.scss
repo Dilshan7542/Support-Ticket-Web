@@ -1,10 +1,25 @@
 :host {
   display: block;
 }
+
 .detail-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 360px;
   gap: 1rem;
+}
+
+.chat-message {
+  max-width: 80%;
+  border: 1px solid var(--neutral-200);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  background: var(--neutral-100);
+}
+
+.chat-message-own {
+  align-self: flex-end;
+  background: var(--primary-50);
+  border-color: var(--primary-200);
 }
 
 @media (max-width: 900px) {

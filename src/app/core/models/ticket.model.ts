@@ -30,7 +30,9 @@ export interface TicketTrackingItem {
 export interface Ticket {
   id: string | number;
   ticketNo?: string;
+  title?: string;
   subject: string;
+  message?: string;
   description?: string;
   category?: string | null;
   categoryCode?: string | null;
@@ -52,13 +54,11 @@ export interface Ticket {
 }
 
 export interface CreateTicketRequest {
-  companyId: string | number;
-  subject: string;
-  description: string;
-  category?: string;
-  categoryCode?: string | null;
-  priority?: string | null;
   userId: string | number;
+  title: string;
+  message: string;
+  attachmentIds?: Array<string | number>;
+  aiPredictionEnabled?: boolean;
 }
 
 export interface UpdateTicketStatusRequest {

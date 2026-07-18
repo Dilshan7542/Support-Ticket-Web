@@ -48,12 +48,8 @@
             <p class="app-muted mb-0">Describe the issue clearly so support can respond.</p>
           </div>
 
-          @if (!companies().length) {
-            <div class="alert alert-warning mb-0">No active company found. Complaint submission is unavailable.</div>
-          }
-
-          <input class="form-control" formControlName="subject" placeholder="Title" />
-          <textarea class="form-control" formControlName="description" rows="6" placeholder="Message"></textarea>
+          <input class="form-control" formControlName="title" placeholder="Title" />
+          <textarea class="form-control" formControlName="message" rows="6" placeholder="Message"></textarea>
           <input class="form-control" type="file" (change)="onAttachmentSelected($event)" />
           @if (attachment()) {
             <div class="app-muted small">Selected attachment: {{ attachment()?.name }}</div>
@@ -79,22 +75,22 @@
 
           <div class="vstack gap-3">
             @for (ticket of tickets(); track ticket.id) {
-              <article class="complaint-row border rounded p-3">
+              <article
+                class="complaint-row border rounded p-3"
+                role="button"
+                tabindex="0"
+                [class.complaint-row-active]="selectedTicket()?.id === ticket.id"
+                (click)="openTicket(ticket)"
+                (keydown.enter)="openTicket(ticket)"
+              >
                 <div class="d-flex justify-content-between gap-3">
                   <div>
-                    <h3 class="h6 mb-1">{{ ticket.subject }}</h3>
-                    <p class="app-muted mb-2">{{ ticket.description }}</p>
+                    <h3 class="h6 mb-1">{{ ticket.title || ticket.subject }}</h3>
+                    <p class="app-muted mb-2">{{ ticket.message || ticket.description }}</p>
                     <small class="app-muted">{{ ticket.createdAt | date:'medium' }}</small>
                   </div>
                   <span class="badge status-badge">{{ ticket.status }}</span>
                 </div>
-
-                @if (ticket.replies?.length) {
-                  <div class="reply-box mt-3">
-                    <strong>Admin reply</strong>
-                    <p class="mb-0">{{ ticket.replies?.[ticket.replies.length - 1]?.message }}</p>
-                  </div>
-                }
               </article>
             } @empty {
               <p class="app-muted mb-0">No complaints submitted yet.</p>
@@ -102,6 +98,63 @@
           </div>
         </div>
       </section>
+
+      @if (selectedTicket(); as detailTicket) {
+        <section class="card border-0 shadow-sm customer-ticket-detail">
+          <div class="card-body">
+            <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
+              <div>
+                <h2 class="h5 mb-1">{{ detailTicket.title || detailTicket.subject }}</h2>
+                <p class="app-muted mb-0">{{ detailTicket.message || detailTicket.description }}</p>
+              </div>
+              <button class="btn btn-outline-secondary btn-sm" type="button" (click)="closeTicket()">Close</button>
+            </div>
+
+            @if (selectedTicketLoading()) {
+              <div class="form-control app-muted">Loading chat...</div>
+            }
+
+            @if (selectedTicketError()) {
+              <div class="alert alert-danger">{{ selectedTicketError() }}</div>
+            }
+
+            <div class="reply-box">
+              <strong>Chat</strong>
+              <div class="vstack gap-2 mt-2">
+                @for (reply of detailTicket.replies; track reply.id) {
+                  <div class="chat-message" [class.chat-message-own]="isOwnReply(reply.userId)">
+                    <div class="small app-muted">{{ isOwnReply(reply.userId) ? 'You' : 'Support' }} - {{ reply.createdAt | date:'short' }}</div>
+                    <p class="mb-0">{{ reply.message }}</p>
+                  </div>
+                } @empty {
+                  <p class="app-muted mb-0">No replies yet.</p>
+                }
+              </div>
+
+              <div class="vstack gap-2 mt-3">
+                <textarea
+                  class="form-control form-control-sm"
+                  rows="3"
+                  placeholder="Write a reply"
+                  [value]="replyDrafts()[detailTicket.id] || ''"
+                  (input)="updateReplyDraft(detailTicket.id, $event)"
+                ></textarea>
+                @if (replyErrors()[detailTicket.id]) {
+                  <div class="alert alert-danger py-2 mb-0">{{ replyErrors()[detailTicket.id] }}</div>
+                }
+                <button
+                  class="btn btn-outline-primary btn-sm align-self-start"
+                  type="button"
+                  (click)="addReply(detailTicket)"
+                  [disabled]="!(replyDrafts()[detailTicket.id] || '').trim() || replySubmitting()[detailTicket.id]"
+                >
+                  {{ replySubmitting()[detailTicket.id] ? 'Sending...' : 'Send reply' }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+      }
     </section>
   }
 </main>

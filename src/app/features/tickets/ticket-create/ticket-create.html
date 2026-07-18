@@ -1,6 +1,6 @@
 <header class="mb-4">
   <h2 class="h3 mb-1">Create Ticket</h2>
-  <p class="app-muted mb-0">Create a complaint ticket from a customer-care call.</p>
+  <p class="app-muted mb-0">Create a complaint ticket manually, or enable AI prediction for category, priority, and department suggestion.</p>
 </header>
 
 <form class="card border-0 shadow-sm" [formGroup]="form" (ngSubmit)="submit()">
@@ -9,140 +9,29 @@
       <div class="alert alert-danger mb-0">{{ error }}</div>
     }
 
-    @if (categoriesError) {
-      <div class="alert alert-warning mb-0">
-        {{ categoriesError }}
-        <button class="btn btn-sm btn-outline-secondary ms-2" type="button" (click)="loadCategories()">Retry</button>
-      </div>
-    }
-
-    @if (prioritiesError) {
-      <div class="alert alert-warning mb-0">
-        {{ prioritiesError }}
-        <button class="btn btn-sm btn-outline-secondary ms-2" type="button" (click)="loadPriorities()">Retry</button>
-      </div>
-    }
-
-    @if (companiesError) {
-      <div class="alert alert-warning mb-0">
-        {{ companiesError }}
-        <button class="btn btn-sm btn-outline-secondary ms-2" type="button" (click)="loadCompanies()">Retry</button>
-      </div>
-    }
-
-    @if (departmentsError) {
-      <div class="alert alert-warning mb-0">
-        {{ departmentsError }}
-        <button class="btn btn-sm btn-outline-secondary ms-2" type="button" (click)="loadDepartments()">Retry</button>
-      </div>
-    }
-
     @if (createdTicket) {
       <div class="alert alert-success mb-0">
         Ticket {{ createdTicket.ticketNo || createdTicket.id }} created.
       </div>
     }
 
-    <div class="row g-3">
-      <div class="col-md-4">
-        <label class="form-label" for="callerName">Caller name</label>
-        <input id="callerName" class="form-control" formControlName="callerName" placeholder="Customer name" />
-      </div>
-      <div class="col-md-4">
-        <label class="form-label" for="callerContact">Caller contact</label>
-        <input id="callerContact" class="form-control" formControlName="callerContact" placeholder="Phone or email" />
-      </div>
-      <div class="col-md-4">
-        <label class="form-label" for="companyId">Company</label>
-        @if (companiesLoading) {
-          <div class="form-control app-muted">Loading companies...</div>
-        } @else if (companies.length > 0) {
-          <select
-            id="companyId"
-            class="form-select"
-            formControlName="companyId"
-          >
-            <option value="">Select company</option>
-            @for (company of companies; track company.id) {
-              <option [value]="company.id">{{ company.name }} ({{ company.code }})</option>
-            }
-          </select>
-        } @else {
-          <div class="form-control app-muted">No companies found</div>
-        }
-      </div>
+    <div>
+      <label class="form-label" for="title">Title</label>
+      <input id="title" class="form-control" formControlName="title" placeholder="Ticket title" />
     </div>
 
     <div>
-      <label class="form-label" for="departmentId">Department</label>
-      @if (departmentsLoading) {
-        <div class="form-control app-muted">Loading departments...</div>
-      } @else if (departments.length > 0) {
-        <select
-          id="departmentId"
-          class="form-select"
-          formControlName="departmentId"
-        >
-          <option value="">Select department</option>
-          @for (department of departments; track department.id) {
-            <option [value]="department.id">
-              {{ department.name }}{{ department.code ? ' (' + department.code + ')' : '' }}{{ department.companyName ? ' - ' + department.companyName : '' }}
-            </option>
-          }
-        </select>
-      } @else {
-        <div class="form-control app-muted">No departments found</div>
-      }
+      <label class="form-label" for="message">Message</label>
+      <textarea id="message" class="form-control" formControlName="message" placeholder="Describe the issue" rows="6"></textarea>
     </div>
 
-    <div>
-      <label class="form-label" for="subject">Subject</label>
-      <input id="subject" class="form-control" formControlName="subject" placeholder="Complaint subject" />
-    </div>
-
-    <div>
-      <label class="form-label" for="categoryCode">Category</label>
-      @if (categoriesLoading) {
-        <div class="form-control app-muted">Loading categories...</div>
-      } @else if (categories.length > 0) {
-        <select id="categoryCode" class="form-select" formControlName="categoryCode">
-          <option value="">Select category</option>
-          @for (category of categories; track category.id) {
-            <option [value]="category.code">
-              {{ category.name }} ({{ category.code }})
-            </option>
-          }
-        </select>
-      } @else {
-        <div class="form-control app-muted">No categories found</div>
-      }
-    </div>
-
-    <div>
-      <label class="form-label" for="priority">Priority</label>
-      @if (prioritiesLoading) {
-        <div class="form-control app-muted">Loading priorities...</div>
-      } @else if (priorities.length > 0) {
-        <select id="priority" class="form-select" formControlName="priority">
-          <option value="">Select priority</option>
-          @for (priority of priorities; track priority.id) {
-            <option [value]="priority.code">
-              {{ priority.name }} ({{ priority.code }})
-            </option>
-          }
-        </select>
-      } @else {
-        <div class="form-control app-muted">No priorities found</div>
-      }
-    </div>
-
-    <div>
-      <label class="form-label" for="description">Complaint details</label>
-      <textarea id="description" class="form-control" formControlName="description" placeholder="Describe what the caller reported" rows="6"></textarea>
+    <div class="form-check form-switch">
+      <input id="aiPredictionEnabled" class="form-check-input" type="checkbox" formControlName="aiPredictionEnabled" />
+      <label class="form-check-label" for="aiPredictionEnabled">Enable AI prediction</label>
     </div>
 
     <div class="d-flex gap-2">
-      <button class="btn btn-primary" type="submit" [disabled]="form.invalid || loading || categoriesLoading || prioritiesLoading || companiesLoading || departmentsLoading">
+      <button class="btn btn-primary" type="submit" [disabled]="form.invalid || loading">
         {{ loading ? 'Creating...' : 'Create Ticket' }}
       </button>
       <a class="btn btn-outline-secondary" routerLink="/tickets">Back</a>
