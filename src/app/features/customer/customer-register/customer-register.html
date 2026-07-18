@@ -1,0 +1,33 @@
+<main class="customer-auth-shell app-surface min-vh-100">
+  <header class="customer-auth-header border-bottom">
+    <h1 class="h5 mb-0">Customer Support</h1>
+    <a class="btn btn-outline-secondary btn-sm" routerLink="/auth/login">Admin login</a>
+  </header>
+
+  <section class="customer-auth-content p-3">
+    <form class="card shadow-sm border-0 w-100 auth-card" [formGroup]="form" (ngSubmit)="submit()">
+      <div class="card-body p-4 vstack gap-3">
+        <div>
+          <h2 class="h4 mb-1">Customer Register</h2>
+          <p class="app-muted mb-0">Create an account to submit and track tickets.</p>
+        </div>
+
+        <input class="form-control" type="text" formControlName="fullName" placeholder="Full name" />
+        <input class="form-control" type="text" formControlName="username" placeholder="Username" />
+        <input class="form-control" type="email" formControlName="email" placeholder="Email" />
+        <input class="form-control" type="text" formControlName="phone" placeholder="Phone optional" />
+        <input class="form-control" type="password" formControlName="password" placeholder="Password" />
+
+        @if (error()) {
+          <div class="alert alert-danger mb-0">{{ error() }}</div>
+        }
+
+        <button class="btn btn-primary" type="submit" [disabled]="form.invalid || loading()">
+          {{ loading() ? 'Creating...' : 'Create account' }}
+        </button>
+
+        <a routerLink="/customer/login">Already have an account?</a>
+      </div>
+    </form>
+  </section>
+</main>

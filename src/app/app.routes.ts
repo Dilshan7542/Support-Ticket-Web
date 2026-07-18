@@ -4,6 +4,14 @@ import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
+    path: 'customer/login',
+    loadComponent: () => import('./features/customer/customer-login/customer-login').then((m) => m.CustomerLogin)
+  },
+  {
+    path: 'customer/register',
+    loadComponent: () => import('./features/customer/customer-register/customer-register').then((m) => m.CustomerRegister)
+  },
+  {
     path: 'customer',
     loadComponent: () => import('./features/customer/customer-portal/customer-portal').then((m) => m.CustomerPortal)
   },
@@ -48,7 +56,7 @@ export const routes: Routes = [
       {
         path: '',
         pathMatch: 'full',
-        redirectTo: '/auth/register'
+        redirectTo: '/dashboard'
       }
     ]
   },

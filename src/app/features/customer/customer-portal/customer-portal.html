@@ -7,39 +7,13 @@
 
     <div class="d-flex align-items-center gap-2">
       @if (customer()) {
-        <span class="badge text-bg-light border">{{ customer() }}</span>
-        <button class="btn btn-outline-secondary btn-sm" type="button" (click)="logout()">Switch user</button>
+        <span class="badge text-bg-light border">{{ customerName() }}</span>
+        <button class="btn btn-outline-danger btn-sm" type="button" (click)="logout()">Logout</button>
       }
-      <a class="btn btn-outline-primary btn-sm" routerLink="/auth/login">Admin</a>
     </div>
   </header>
 
-  @if (!customer()) {
-    <section class="customer-empty">
-      <form class="card border-0 shadow-sm" [formGroup]="loginForm" (ngSubmit)="login()">
-        <div class="card-body p-4 vstack gap-3">
-          <div>
-            <h2 class="h5 mb-1">Customer Login</h2>
-            <p class="app-muted mb-0">Enter an email or username to submit and track complaints.</p>
-          </div>
-
-          <input class="form-control" type="text" formControlName="username" placeholder="Email or username" />
-          <input class="form-control" type="password" formControlName="password" placeholder="Password" />
-
-          @if (loginError()) {
-            <div class="alert alert-danger mb-0">{{ loginError() }}</div>
-          }
-
-          <div class="d-flex gap-2">
-            <button class="btn btn-primary" type="submit" [disabled]="loginForm.invalid || loginLoading()">
-              {{ loginLoading() ? 'Signing in...' : 'Continue' }}
-            </button>
-            <a class="btn btn-outline-secondary" routerLink="/auth/login">Admin login</a>
-          </div>
-        </div>
-      </form>
-    </section>
-  } @else {
+  @if (customer()) {
     <section class="customer-grid">
       <form class="card border-0 shadow-sm" [formGroup]="form" (ngSubmit)="submit()">
         <div class="card-body vstack gap-3">

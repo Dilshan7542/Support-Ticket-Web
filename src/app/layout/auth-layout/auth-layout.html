@@ -1,3 +1,10 @@
-<main class="min-vh-100 d-flex align-items-center justify-content-center app-surface p-3">
-  <router-outlet />
+<main class="min-vh-100 app-surface">
+  <header class="auth-header border-bottom">
+    <h1 class="h5 mb-0">Support Desk Admin</h1>
+    <a class="btn btn-outline-primary btn-sm" routerLink="/customer/login">Customer login</a>
+  </header>
+
+  <section class="auth-content p-3">
+    <router-outlet />
+  </section>
 </main>

@@ -1,8 +1,4 @@
-:host {
-  display: block;
-}
-
-.auth-header {
+.customer-auth-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -11,9 +7,13 @@
   background: var(--neutral-100);
 }
 
-.auth-content {
+.customer-auth-content {
   min-height: calc(100vh - 65px);
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.auth-card {
+  width: min(100%, 420px);
 }

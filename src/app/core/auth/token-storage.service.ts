@@ -7,6 +7,8 @@ const REFRESH_TOKEN_KEY = 'support_ticket_refresh_token';
 const USER_ID_KEY = 'support_ticket_user_id';
 const ENCRYPTION_KEY_ID_KEY = 'support_ticket_encryption_key_id';
 const USER_ROLE_KEY = 'support_ticket_user_role';
+const USERNAME_KEY = 'support_ticket_username';
+const FULL_NAME_KEY = 'support_ticket_full_name';
 
 @Injectable({ providedIn: 'root' })
 export class TokenStorageService {
@@ -22,6 +24,14 @@ export class TokenStorageService {
     if (tokens.role) {
       localStorage.setItem(USER_ROLE_KEY, tokens.role);
     }
+
+    if (tokens.username) {
+      localStorage.setItem(USERNAME_KEY, tokens.username);
+    }
+
+    if (tokens.fullName) {
+      localStorage.setItem(FULL_NAME_KEY, tokens.fullName);
+    }
   }
 
   clear(): void {
@@ -29,6 +39,8 @@ export class TokenStorageService {
     localStorage.removeItem(REFRESH_TOKEN_KEY);
     localStorage.removeItem(USER_ID_KEY);
     localStorage.removeItem(USER_ROLE_KEY);
+    localStorage.removeItem(USERNAME_KEY);
+    localStorage.removeItem(FULL_NAME_KEY);
   }
 
   getAccessToken(): string | null {
@@ -53,6 +65,14 @@ export class TokenStorageService {
 
   getRole(): UserRole | null {
     return localStorage.getItem(USER_ROLE_KEY) as UserRole | null;
+  }
+
+  getUsername(): string | null {
+    return localStorage.getItem(USERNAME_KEY);
+  }
+
+  getFullName(): string | null {
+    return localStorage.getItem(FULL_NAME_KEY);
   }
 
   isAuthenticated(): boolean {

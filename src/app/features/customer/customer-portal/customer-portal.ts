@@ -1,10 +1,8 @@
 import { DatePipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
-import { finalize } from 'rxjs';
+import { Router } from '@angular/router';
 
-import { AuthService } from '../../../core/auth/auth.service';
 import { TokenStorageService } from '../../../core/auth/token-storage.service';
 import { getApiErrorMessage } from '../../../core/models/api-response.model';
 import { Ticket } from '../../../core/models/ticket.model';
@@ -12,24 +10,23 @@ import { TicketService } from '../../tickets/ticket.service';
 
 @Component({
   selector: 'app-customer-portal',
-  imports: [DatePipe, ReactiveFormsModule, RouterLink],
+  imports: [DatePipe, ReactiveFormsModule],
   templateUrl: './customer-portal.html',
   styleUrl: './customer-portal.scss'
 })
 export class CustomerPortal implements OnInit {
   private readonly formBuilder = inject(FormBuilder);
-  private readonly authService = inject(AuthService);
   private readonly tokenStorage = inject(TokenStorageService);
   private readonly ticketService = inject(TicketService);
+  private readonly router = inject(Router);
 
   readonly customer = signal(this.tokenStorage.getUserId() ?? '');
+  readonly customerName = signal(this.getCustomerName());
   readonly tickets = signal<Ticket[]>([]);
   readonly selectedTicket = signal<Ticket | null>(null);
   readonly selectedTicketLoading = signal(false);
   readonly selectedTicketError = signal<string | null>(null);
   readonly created = signal(false);
-  readonly loginLoading = signal(false);
-  readonly loginError = signal<string | null>(null);
   readonly submitting = signal(false);
   readonly submitError = signal<string | null>(null);
   readonly attachment = signal<File | null>(null);
@@ -37,20 +34,18 @@ export class CustomerPortal implements OnInit {
   readonly replySubmitting = signal<Record<string, boolean>>({});
   readonly replyErrors = signal<Record<string, string>>({});
 
-  readonly loginForm = this.formBuilder.nonNullable.group({
-    username: ['', Validators.required],
-    password: ['', Validators.required]
-  });
-
   readonly form = this.formBuilder.nonNullable.group({
     title: ['', Validators.required],
     message: ['', Validators.required]
   });
 
   ngOnInit(): void {
-    if (this.customer()) {
-      this.loadTickets();
+    if (!this.customer()) {
+      this.router.navigateByUrl('/customer/login');
+      return;
     }
+
+    this.loadTickets();
   }
 
   submit(): void {
@@ -162,40 +157,10 @@ export class CustomerPortal implements OnInit {
     return String(userId) === this.customer();
   }
 
-  login(): void {
-    if (this.loginForm.invalid) {
-      return;
-    }
-
-    const credentials = this.loginForm.getRawValue();
-    const username = credentials.username.trim();
-
-    if (!username || !credentials.password) {
-      return;
-    }
-
-    this.loginLoading.set(true);
-    this.loginError.set(null);
-
-    this.authService.login({
-      username,
-      password: credentials.password
-    }).pipe(
-      finalize(() => this.loginLoading.set(false))
-    ).subscribe({
-      next: () => {
-        this.customer.set(this.tokenStorage.getUserId() ?? '');
-        this.loginForm.reset({ username: '', password: '' });
-        this.created.set(false);
-        this.loadTickets();
-      },
-      error: (error) => this.loginError.set(getApiErrorMessage(error, 'Invalid customer username or password'))
-    });
-  }
-
   logout(): void {
     this.tokenStorage.clear();
     this.customer.set('');
+    this.customerName.set('');
     this.tickets.set([]);
     this.selectedTicket.set(null);
     this.created.set(false);
@@ -203,7 +168,7 @@ export class CustomerPortal implements OnInit {
     this.replyDrafts.set({});
     this.replySubmitting.set({});
     this.replyErrors.set({});
-    this.loginForm.reset({ username: '', password: '' });
+    this.router.navigateByUrl('/customer/login');
   }
 
   private loadTickets(): void {
@@ -221,5 +186,9 @@ export class CustomerPortal implements OnInit {
     this.created.set(true);
     this.submitting.set(false);
     this.loadTickets();
+  }
+
+  private getCustomerName(): string {
+    return this.tokenStorage.getFullName() ?? this.tokenStorage.getUsername() ?? 'Customer';
   }
 }

@@ -11,7 +11,7 @@ export const authRoutes: Routes = [
   },
   {
     path: 'register',
-    loadComponent: () => import('./register/register').then((m) => m.Register)
+    redirectTo: '/customer/register'
   },
   {
     path: '',
