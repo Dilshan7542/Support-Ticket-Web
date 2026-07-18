@@ -30,6 +30,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/tickets/ticket-category-list/ticket-category-list').then((m) => m.TicketCategoryList)
       },
       {
+        path: 'ticket-priorities',
+        loadComponent: () => import('./features/tickets/ticket-priority-list/ticket-priority-list').then((m) => m.TicketPriorityList)
+      },
+      {
         path: 'departments',
         loadChildren: () => import('./features/departments/departments.routes').then((m) => m.departmentsRoutes)
       },

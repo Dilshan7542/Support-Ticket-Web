@@ -56,6 +56,13 @@ export const API_ENDPOINTS = {
     detail: '/api/v1/ticket-statuses/detail',
     update: '/api/v1/ticket-statuses/update'
   },
+  ticketPriorities: {
+    create: '/api/v1/ticket-priorities/create',
+    list: '/api/v1/ticket-priorities/list',
+    detail: '/api/v1/ticket-priorities/detail',
+    update: '/api/v1/ticket-priorities/update',
+    delete: '/api/v1/ticket-priorities/delete'
+  },
   health: {
     status: '/api/v1/health/status'
   }

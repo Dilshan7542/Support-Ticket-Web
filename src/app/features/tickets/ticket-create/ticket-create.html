@@ -16,6 +16,13 @@
       </div>
     }
 
+    @if (prioritiesError) {
+      <div class="alert alert-warning mb-0">
+        {{ prioritiesError }}
+        <button class="btn btn-sm btn-outline-secondary ms-2" type="button" (click)="loadPriorities()">Retry</button>
+      </div>
+    }
+
     @if (companiesError) {
       <div class="alert alert-warning mb-0">
         {{ companiesError }}
@@ -112,12 +119,30 @@
     </div>
 
     <div>
+      <label class="form-label" for="priority">Priority</label>
+      @if (prioritiesLoading) {
+        <div class="form-control app-muted">Loading priorities...</div>
+      } @else if (priorities.length > 0) {
+        <select id="priority" class="form-select" formControlName="priority">
+          <option value="">Select priority</option>
+          @for (priority of priorities; track priority.id) {
+            <option [value]="priority.code">
+              {{ priority.name }} ({{ priority.code }})
+            </option>
+          }
+        </select>
+      } @else {
+        <div class="form-control app-muted">No priorities found</div>
+      }
+    </div>
+
+    <div>
       <label class="form-label" for="description">Complaint details</label>
       <textarea id="description" class="form-control" formControlName="description" placeholder="Describe what the caller reported" rows="6"></textarea>
     </div>
 
     <div class="d-flex gap-2">
-      <button class="btn btn-primary" type="submit" [disabled]="form.invalid || loading || categoriesLoading || companiesLoading || departmentsLoading">
+      <button class="btn btn-primary" type="submit" [disabled]="form.invalid || loading || categoriesLoading || prioritiesLoading || companiesLoading || departmentsLoading">
         {{ loading ? 'Creating...' : 'Create Ticket' }}
       </button>
       <a class="btn btn-outline-secondary" routerLink="/tickets">Back</a>

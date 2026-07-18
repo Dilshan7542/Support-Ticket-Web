@@ -9,10 +9,12 @@ import { Company } from '../../../core/models/company.model';
 import { getApiErrorMessage } from '../../../core/models/api-response.model';
 import { Department } from '../../../core/models/department.model';
 import { TicketCategory } from '../../../core/models/ticket-category.model';
+import { TicketPriority } from '../../../core/models/ticket-priority.model';
 import { Ticket } from '../../../core/models/ticket.model';
 import { CompanyService } from '../../companies/company.service';
 import { DepartmentService } from '../../departments/department.service';
 import { TicketCategoryService } from '../ticket-category.service';
+import { TicketPriorityService } from '../ticket-priority.service';
 import { TicketService } from '../ticket.service';
 
 @Component({
@@ -26,6 +28,7 @@ export class TicketCreate implements OnInit {
   private readonly companyService = inject(CompanyService);
   private readonly departmentService = inject(DepartmentService);
   private readonly ticketCategoryService = inject(TicketCategoryService);
+  private readonly ticketPriorityService = inject(TicketPriorityService);
   private readonly ticketService = inject(TicketService);
   private readonly tokenStorage = inject(TokenStorageService);
   private readonly changeDetectorRef = inject(ChangeDetectorRef);
@@ -33,14 +36,17 @@ export class TicketCreate implements OnInit {
 
   loading = false;
   categoriesLoading = false;
+  prioritiesLoading = false;
   companiesLoading = false;
   departmentsLoading = false;
   categories: TicketCategory[] = [];
+  priorities: TicketPriority[] = [];
   companies: Company[] = [];
   departments: Department[] = [];
   createdTicket?: Ticket;
   error: string | null = null;
   categoriesError: string | null = null;
+  prioritiesError: string | null = null;
   companiesError: string | null = null;
   departmentsError: string | null = null;
 
@@ -51,6 +57,7 @@ export class TicketCreate implements OnInit {
     departmentId: [''],
     subject: ['', Validators.required],
     categoryCode: [''],
+    priority: [''],
     description: ['', Validators.required],
   });
 
@@ -58,6 +65,7 @@ export class TicketCreate implements OnInit {
     this.registerDropdownEvents();
     this.loadCompanies();
     this.loadCategories();
+    this.loadPriorities();
   }
 
   onCompanyChange(): void {
@@ -94,6 +102,35 @@ export class TicketCreate implements OnInit {
       },
       error: (error) => {
         this.categoriesError = getApiErrorMessage(error, 'Unable to load ticket categories');
+        this.notifyView();
+      }
+    });
+  }
+
+  loadPriorities(): void {
+    this.prioritiesLoading = true;
+    this.prioritiesError = null;
+
+    this.ticketPriorityService.list({
+      page: 0,
+      size: 100
+    }).pipe(
+      finalize(() => {
+        this.prioritiesLoading = false;
+        this.notifyView();
+      })
+    ).subscribe({
+      next: (priorities) => {
+        this.priorities = priorities.filter((priority) => priority.status !== 'INACTIVE' && priority.status !== 'DELETED');
+
+        if (!this.form.controls.priority.value && this.priorities.length > 0) {
+          this.form.controls.priority.setValue(this.priorities[0].code, { emitEvent: false });
+        }
+
+        this.notifyView();
+      },
+      error: (error) => {
+        this.prioritiesError = getApiErrorMessage(error, 'Unable to load ticket priorities');
         this.notifyView();
       }
     });
@@ -175,6 +212,7 @@ export class TicketCreate implements OnInit {
       companyId: formValue.companyId,
       subject: formValue.subject,
       categoryCode: formValue.categoryCode || null,
+      priority: formValue.priority || null,
       description: this.buildDescription(formValue)
     }).pipe(
       finalize(() => {
@@ -193,6 +231,7 @@ export class TicketCreate implements OnInit {
           departmentId: '',
           subject: '',
           categoryCode: '',
+          priority: this.priorities.length > 0 ? this.priorities[0].code : '',
           description: ''
         }, { emitEvent: false });
 

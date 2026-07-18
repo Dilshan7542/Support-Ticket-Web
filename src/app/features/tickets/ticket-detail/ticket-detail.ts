@@ -45,17 +45,21 @@ export class TicketDetail implements OnInit {
     }
 
     const { status, assignedTo, departmentId } = this.statusForm.getRawValue();
-    const shouldAssign = Boolean(assignedTo.trim() || departmentId);
+    const assignedStaffId = assignedTo.trim();
+    const hasAssignmentChanged = this.hasAssignmentChanged(ticket, departmentId, assignedStaffId);
 
-    if (shouldAssign && !departmentId) {
+    if (hasAssignmentChanged && !departmentId) {
       this.error.set('Department is required when assigning a ticket.');
       return;
     }
 
     this.error.set(null);
     this.ticketService.updateStatus(ticket.id, status).subscribe(() => {
-      if (shouldAssign) {
-        this.ticketService.assign(ticket.id, assignedTo.trim() || null, departmentId).subscribe(() => this.loadTicket());
+      if (hasAssignmentChanged) {
+        this.ticketService.assign(ticket.id, assignedStaffId || null, departmentId).subscribe({
+          next: () => this.loadTicket(),
+          error: (error) => this.error.set(getApiErrorMessage(error, 'Unable to assign ticket'))
+        });
         return;
       }
 
@@ -104,5 +108,12 @@ export class TicketDetail implements OnInit {
       },
       error: (error) => this.error.set(getApiErrorMessage(error, 'Unable to load departments'))
     });
+  }
+
+  private hasAssignmentChanged(ticket: Ticket, departmentId: string, assignedStaffId: string): boolean {
+    const currentDepartmentId = ticket.departmentId ? String(ticket.departmentId) : '';
+    const currentAssignedStaffId = ticket.assignedStaffId ? String(ticket.assignedStaffId) : '';
+
+    return departmentId !== currentDepartmentId || assignedStaffId !== currentAssignedStaffId;
   }
 }

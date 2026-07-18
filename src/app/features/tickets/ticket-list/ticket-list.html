@@ -3,7 +3,19 @@
     <h2 class="h3 mb-1">Complaints</h2>
     <p class="app-muted mb-0">Manage customer complaints and statuses, 20 rows per page.</p>
   </div>
-  <a class="btn btn-primary" routerLink="/tickets/create">Create Ticket</a>
+  <div class="d-flex align-items-center gap-2">
+    @if (prioritiesLoading()) {
+      <div class="form-control form-control-sm app-muted">Loading priorities...</div>
+    } @else if (priorities().length > 0) {
+      <select class="form-select form-select-sm" [value]="selectedPriority()" (change)="filterByPriority($event)" aria-label="Filter by priority">
+        <option value="">All priorities</option>
+        @for (priority of priorities(); track priority.id) {
+          <option [value]="priority.code">{{ priority.name }} ({{ priority.code }})</option>
+        }
+      </select>
+    }
+    <a class="btn btn-primary" routerLink="/tickets/create">Create Ticket</a>
+  </div>
 </header>
 
 <section class="table-responsive shadow-sm rounded">
@@ -30,7 +42,7 @@
           </td>
           <td>{{ ticket.companyName || ticket.companyId || 'No company' }}</td>
           <td>{{ ticket.customerId || 'Unknown' }}</td>
-          <td>{{ ticket.priority || 'MEDIUM' }}</td>
+          <td>{{ ticket.priority || 'No priority' }}</td>
           <td><span class="badge text-bg-secondary">{{ ticket.status || 'NEW' }}</span></td>
           <td>{{ ticket.createdAt ? (ticket.createdAt | date:'medium') : 'Unknown' }}</td>
           <td class="text-end">

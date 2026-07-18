@@ -44,11 +44,15 @@
 
           <input class="form-control" formControlName="subject" placeholder="Complaint subject" />
           <textarea class="form-control" formControlName="description" rows="6" placeholder="Complaint details"></textarea>
-          <select class="form-select" formControlName="priority">
-            <option value="LOW">Low priority</option>
-            <option value="MEDIUM">Medium priority</option>
-            <option value="HIGH">High priority</option>
-          </select>
+          @if (priorities().length > 0) {
+            <select class="form-select" formControlName="priority">
+              @for (priority of priorities(); track priority.id) {
+                <option [value]="priority.code">{{ priority.name }} ({{ priority.code }})</option>
+              }
+            </select>
+          } @else {
+            <div class="form-control app-muted">No priorities found</div>
+          }
 
           <button class="btn btn-primary align-self-start" type="submit" [disabled]="form.invalid">Submit complaint</button>
 

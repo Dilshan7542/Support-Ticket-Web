@@ -57,7 +57,7 @@ export interface CreateTicketRequest {
   description: string;
   category?: string;
   categoryCode?: string | null;
-  priority?: string;
+  priority?: string | null;
   userId: string | number;
 }
 
