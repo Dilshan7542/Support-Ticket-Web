@@ -14,8 +14,8 @@
       }
       <input class="form-control" formControlName="name" placeholder="Department name" />
       <input class="form-control" formControlName="code" placeholder="Department code" />
-      <select class="form-select" formControlName="companyId">
-        <option value="">No company</option>
+      <select class="form-select" formControlName="vendorId">
+        <option value="">No vendor</option>
         @for (company of companies(); track company.id) {
           <option [value]="company.id">{{ company.name }} ({{ company.code }})</option>
         }

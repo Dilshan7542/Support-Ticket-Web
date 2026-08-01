@@ -84,7 +84,7 @@ export class DepartmentService {
   private normalizeDepartmentRequest<TRequest extends Partial<Department> | ListRequest>(request: TRequest): TRequest {
     return {
       ...request,
-      companyId: this.toNumber(request.companyId as string | number | null | undefined)
+      vendorId: this.toNumber(request.vendorId as string | number | null | undefined)
     } as TRequest;
   }
 

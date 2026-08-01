@@ -23,7 +23,7 @@
     <thead>
       <tr>
         <th scope="col">Ticket</th>
-        <th scope="col">Company</th>
+        <th scope="col">Vendor</th>
         <th scope="col">Customer</th>
         <th scope="col">Priority</th>
         <th scope="col">Status</th>
@@ -40,7 +40,7 @@
               <div class="app-muted small">{{ ticket.title || ticket.subject }}</div>
             }
           </td>
-          <td>{{ ticket.companyName || ticket.companyId || 'No company' }}</td>
+          <td>{{ ticket.vendorName || ticket.vendorId || 'No vendor' }}</td>
           <td>{{ ticket.customerId || 'Unknown' }}</td>
           <td>{{ ticket.priority || 'No priority' }}</td>
           <td><span class="badge text-bg-secondary">{{ ticket.status || 'NEW' }}</span></td>

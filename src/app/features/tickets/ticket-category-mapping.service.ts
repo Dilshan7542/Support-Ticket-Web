@@ -53,7 +53,6 @@ export class TicketCategoryMappingService {
   private normalizeMappingRequest<TRequest extends Partial<TicketCategoryMapping> | ListRequest>(request: TRequest): TRequest {
     return {
       ...request,
-      companyId: this.toNumber(request.companyId as string | number | null | undefined),
       categoryId: this.toNumber(request.categoryId as string | number | null | undefined),
       departmentId: this.toNumber(request.departmentId as string | number | null | undefined)
     } as TRequest;

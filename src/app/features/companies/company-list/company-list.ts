@@ -46,10 +46,10 @@ export class CompanyList implements OnInit {
     this.companyService.create(this.form.getRawValue()).subscribe({
       next: () => {
         this.form.reset({ name: '', code: '', description: '' });
-        this.message.set('Company created.');
+        this.message.set('Vendor created.');
         this.loadCompanies(this.currentPage());
       },
-      error: (error) => this.error.set(getApiErrorMessage(error, 'Unable to create company'))
+      error: (error) => this.error.set(getApiErrorMessage(error, 'Unable to create vendor'))
     });
   }
 
@@ -72,7 +72,7 @@ export class CompanyList implements OnInit {
         this.totalPages.set(Math.max(1, pageResponse.totalPages));
         this.totalElements.set(pageResponse.totalElements);
       },
-      error: (error) => this.error.set(getApiErrorMessage(error, 'Unable to load companies'))
+      error: (error) => this.error.set(getApiErrorMessage(error, 'Unable to load vendors'))
     });
   }
 }

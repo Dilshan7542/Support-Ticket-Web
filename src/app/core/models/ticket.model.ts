@@ -40,11 +40,14 @@ export interface Ticket {
   status: string;
   priority?: string;
   customerId?: string | number;
-  companyId?: string | number | null;
-  companyName?: string | null;
+  vendorId?: string | number | null;
+  vendorName?: string | null;
   categoryId?: string | number | null;
   departmentId?: string | number | null;
   departmentName?: string | null;
+  categoryConfidence?: number | null;
+  priorityConfidence?: number | null;
+  requiresManualReview?: boolean;
   assignedStaffId?: string | number | null;
   createdAt?: string;
   updatedAt?: string;
@@ -54,17 +57,8 @@ export interface Ticket {
 }
 
 export interface CreateTicketRequest {
-  userId: string | number;
-  title?: string;
-  message?: string;
-  subject?: string;
-  description?: string;
-  companyId?: string | number;
-  categoryCode?: string | null;
-  priority?: string | null;
-  priorityCode?: string | null;
-  attachmentIds?: Array<string | number>;
-  aiPredictionEnabled?: boolean;
+  subject: string;
+  description: string;
 }
 
 export interface UpdateTicketStatusRequest {
@@ -78,6 +72,8 @@ export interface AssignTicketRequest {
   userId: string | number;
   ticketId: string | number;
   departmentId: string | number;
+  categoryCode?: string | null;
+  priority?: string | null;
   assignedStaffId?: string | number | null;
 }
 

@@ -52,9 +52,9 @@ export class CompanyDetail implements OnInit {
     }).subscribe({
       next: (updatedCompany) => {
         this.company.set(updatedCompany);
-        this.message.set('Company updated.');
+        this.message.set('Vendor updated.');
       },
-      error: (error) => this.error.set(getApiErrorMessage(error, 'Unable to update company'))
+      error: (error) => this.error.set(getApiErrorMessage(error, 'Unable to update vendor'))
     });
   }
 
@@ -77,13 +77,13 @@ export class CompanyDetail implements OnInit {
           status: company.status ?? 'ACTIVE'
         });
       },
-      error: (error) => this.error.set(getApiErrorMessage(error, 'Unable to load company'))
+      error: (error) => this.error.set(getApiErrorMessage(error, 'Unable to load vendor'))
     });
   }
 
-  private loadDepartments(companyId: string | number): void {
+  private loadDepartments(vendorId: string | number): void {
     this.departmentError.set(null);
-    this.departmentService.list({ companyId }).subscribe({
+    this.departmentService.list({ vendorId }).subscribe({
       next: (departments) => this.departments.set(departments),
       error: (error) => this.departmentError.set(getApiErrorMessage(error, 'Unable to load departments'))
     });

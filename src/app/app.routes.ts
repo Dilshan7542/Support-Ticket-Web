@@ -46,8 +46,12 @@ export const routes: Routes = [
         loadChildren: () => import('./features/departments/departments.routes').then((m) => m.departmentsRoutes)
       },
       {
-        path: 'companies',
+        path: 'vendors',
         loadChildren: () => import('./features/companies/companies.routes').then((m) => m.companiesRoutes)
+      },
+      {
+        path: 'companies',
+        redirectTo: 'vendors'
       },
       {
         path: 'activity-logs',

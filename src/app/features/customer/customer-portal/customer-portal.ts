@@ -35,8 +35,8 @@ export class CustomerPortal implements OnInit {
   readonly replyErrors = signal<Record<string, string>>({});
 
   readonly form = this.formBuilder.nonNullable.group({
-    title: ['', Validators.required],
-    message: ['', Validators.required]
+    subject: ['', Validators.required],
+    description: ['', Validators.required]
   });
 
   ngOnInit(): void {
@@ -59,10 +59,8 @@ export class CustomerPortal implements OnInit {
     this.submitting.set(true);
     this.submitError.set(null);
     this.ticketService.create({
-      userId: this.customer(),
-      title: formValue.title,
-      message: formValue.message,
-      attachmentIds: []
+      subject: formValue.subject,
+      description: formValue.description
     }).subscribe({
       next: (ticket) => {
         if (attachment) {
@@ -179,8 +177,8 @@ export class CustomerPortal implements OnInit {
 
   private finishSubmit(): void {
     this.form.reset({
-      title: '',
-      message: ''
+      subject: '',
+      description: ''
     });
     this.attachment.set(null);
     this.created.set(true);

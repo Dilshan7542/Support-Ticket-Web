@@ -15,8 +15,8 @@
       }
       <input class="form-control" formControlName="name" placeholder="Department name" />
       <input class="form-control" formControlName="code" placeholder="Department code" />
-      <select class="form-select" formControlName="companyId">
-        <option value="">No company</option>
+      <select class="form-select" formControlName="vendorId">
+        <option value="">No vendor</option>
         @for (company of companies(); track company.id) {
           <option [value]="company.id">{{ company.name }} ({{ company.code }})</option>
         }
@@ -37,7 +37,7 @@
           <tr>
             <th scope="col">Department</th>
             <th scope="col">Code</th>
-            <th scope="col">Company</th>
+            <th scope="col">Vendor</th>
             <th scope="col">Status</th>
             <th scope="col">Description</th>
             <th scope="col" class="text-end">Actions</th>
@@ -48,7 +48,7 @@
             <tr>
               <td><strong>{{ department.name }}</strong></td>
               <td>{{ department.code || 'NO-CODE' }}</td>
-              <td>{{ department.companyName || 'No company' }}</td>
+              <td>{{ department.vendorName || 'No vendor' }}</td>
               <td>{{ department.status || 'ACTIVE' }}</td>
               <td>{{ department.description || 'No description' }}</td>
               <td class="text-end">

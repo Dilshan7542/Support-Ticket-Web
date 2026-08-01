@@ -22,8 +22,8 @@
             <p class="app-muted mb-0">Describe the issue clearly so support can respond.</p>
           </div>
 
-          <input class="form-control" formControlName="title" placeholder="Title" />
-          <textarea class="form-control" formControlName="message" rows="6" placeholder="Message"></textarea>
+          <input class="form-control" formControlName="subject" placeholder="Subject" />
+          <textarea class="form-control" formControlName="description" rows="6" placeholder="Description"></textarea>
           <input class="form-control" type="file" (change)="onAttachmentSelected($event)" />
           @if (attachment()) {
             <div class="app-muted small">Selected attachment: {{ attachment()?.name }}</div>

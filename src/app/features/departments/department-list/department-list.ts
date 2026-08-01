@@ -32,15 +32,15 @@ export class DepartmentList implements OnInit {
   readonly form = this.formBuilder.nonNullable.group({
     name: ['', Validators.required],
     code: ['', Validators.required],
-    companyId: [''],
+    vendorId: [''],
     description: [''],
     status: ['ACTIVE', Validators.required]
   });
 
   ngOnInit(): void {
-    const companyId = this.route.snapshot.queryParamMap.get('companyId') ?? '';
-    this.form.patchValue({ companyId });
-    this.form.controls.companyId.valueChanges.pipe(
+    const vendorId = this.route.snapshot.queryParamMap.get('vendorId') ?? '';
+    this.form.patchValue({ vendorId });
+    this.form.controls.vendorId.valueChanges.pipe(
       distinctUntilChanged(),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(() => this.loadPage(1));
@@ -55,11 +55,11 @@ export class DepartmentList implements OnInit {
 
     this.error.set(null);
     this.message.set(null);
-    const companyId = this.form.controls.companyId.value;
+    const vendorId = this.form.controls.vendorId.value;
 
     this.departmentService.create(this.form.getRawValue()).subscribe({
       next: () => {
-        this.form.reset({ name: '', code: '', companyId, description: '', status: 'ACTIVE' });
+        this.form.reset({ name: '', code: '', vendorId, description: '', status: 'ACTIVE' });
         this.message.set('Department created.');
         this.loadPage(this.currentPage());
       },
@@ -98,15 +98,15 @@ export class DepartmentList implements OnInit {
   private loadCompanies(): void {
     this.companyService.list().subscribe({
       next: (companies) => this.companies.set(companies),
-      error: (error) => this.error.set(getApiErrorMessage(error, 'Unable to load companies'))
+      error: (error) => this.error.set(getApiErrorMessage(error, 'Unable to load vendors'))
     });
   }
 
   private loadPage(page: number): void {
-    const companyId = this.form.controls.companyId.value;
+    const vendorId = this.form.controls.vendorId.value;
     this.currentPage.set(page);
     this.store.loadDepartments({
-      ...(companyId ? { companyId } : {}),
+      ...(vendorId ? { vendorId } : {}),
       page: page - 1,
       size: this.pageSize
     });

@@ -11,15 +11,34 @@
           <div>
             <h3 class="h5 mb-1">{{ selectedTicket.title || selectedTicket.subject }}</h3>
             <p class="app-muted mb-0">Customer: {{ selectedTicket.customerId || 'Unknown' }}</p>
-            <p class="app-muted mb-0">Company: {{ selectedTicket.companyName || selectedTicket.companyId || 'No company' }}</p>
+            <p class="app-muted mb-0">Vendor: {{ selectedTicket.vendorName || selectedTicket.vendorId || 'No vendor' }}</p>
           </div>
-          <span class="badge text-bg-secondary align-self-start">{{ selectedTicket.status }}</span>
+          <div class="d-flex flex-column align-items-end gap-2">
+            <span class="badge text-bg-secondary">{{ selectedTicket.status }}</span>
+            @if (selectedTicket.requiresManualReview) {
+              <span class="badge text-bg-warning">Manual review</span>
+            }
+          </div>
         </div>
 
         <p>{{ selectedTicket.message || selectedTicket.description }}</p>
         <dl class="row mb-0">
+          <dt class="col-sm-3">Department</dt>
+          <dd class="col-sm-9">{{ selectedTicket.departmentName || selectedTicket.departmentId || 'No department' }}</dd>
+          <dt class="col-sm-3">Category</dt>
+          <dd class="col-sm-9">
+            {{ selectedTicket.categoryName || selectedTicket.categoryCode || 'No category' }}
+            @if (selectedTicket.categoryConfidence !== null && selectedTicket.categoryConfidence !== undefined) {
+              <span class="app-muted small">({{ selectedTicket.categoryConfidence }})</span>
+            }
+          </dd>
           <dt class="col-sm-3">Priority</dt>
-          <dd class="col-sm-9">{{ selectedTicket.priority || 'No priority' }}</dd>
+          <dd class="col-sm-9">
+            {{ selectedTicket.priority || 'No priority' }}
+            @if (selectedTicket.priorityConfidence !== null && selectedTicket.priorityConfidence !== undefined) {
+              <span class="app-muted small">({{ selectedTicket.priorityConfidence }})</span>
+            }
+          </dd>
           <dt class="col-sm-3">Assigned to</dt>
           <dd class="col-sm-9">{{ selectedTicket.assignedStaffId || 'Unassigned' }}</dd>
           <dt class="col-sm-3">Created</dt>
@@ -50,6 +69,18 @@
               <option [value]="department.id">
                 {{ department.name }}{{ department.code ? ' (' + department.code + ')' : '' }}
               </option>
+            }
+          </select>
+          <select class="form-select" formControlName="categoryCode">
+            <option value="">Select category</option>
+            @for (category of categories(); track category.id) {
+              <option [value]="category.code">{{ category.name }} ({{ category.code }})</option>
+            }
+          </select>
+          <select class="form-select" formControlName="priority">
+            <option value="">Select priority</option>
+            @for (priority of priorities(); track priority.id) {
+              <option [value]="priority.code">{{ priority.name }} ({{ priority.code }})</option>
             }
           </select>
           <input class="form-control" formControlName="assignedTo" placeholder="Assigned staff id" />

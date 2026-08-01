@@ -25,11 +25,11 @@ export const API_ENDPOINTS = {
     detail: '/api/v1/departments/detail',
     update: '/api/v1/departments/update'
   },
-  companies: {
-    create: '/api/v1/companies/create',
-    list: '/api/v1/companies/list',
-    detail: '/api/v1/companies/detail',
-    update: '/api/v1/companies/update'
+  vendors: {
+    create: '/api/v1/vendors/create',
+    list: '/api/v1/vendors/list',
+    detail: '/api/v1/vendors/detail',
+    update: '/api/v1/vendors/update'
   },
   dashboard: {
     summary: '/api/v1/dashboard/summary'

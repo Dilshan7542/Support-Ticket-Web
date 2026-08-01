@@ -28,7 +28,7 @@ export class DepartmentDetail implements OnInit {
   readonly form = this.formBuilder.nonNullable.group({
     name: ['', Validators.required],
     code: ['', Validators.required],
-    companyId: [''],
+    vendorId: [''],
     description: [''],
     status: ['ACTIVE', Validators.required]
   });
@@ -87,7 +87,7 @@ export class DepartmentDetail implements OnInit {
           this.form.reset({
             name: department.name,
             code: department.code ?? '',
-            companyId: department.companyId ? String(department.companyId) : '',
+            vendorId: department.vendorId ? String(department.vendorId) : '',
             description: department.description ?? '',
             status: department.status ?? 'ACTIVE'
           });
@@ -100,7 +100,7 @@ export class DepartmentDetail implements OnInit {
   private loadCompanies(): void {
     this.companyService.list().subscribe({
       next: (companies) => this.companies.set(companies),
-      error: (error) => this.error.set(getApiErrorMessage(error, 'Unable to load companies'))
+      error: (error) => this.error.set(getApiErrorMessage(error, 'Unable to load vendors'))
     });
   }
 }

@@ -15,7 +15,7 @@ export class CompanyService {
   private readonly listCache = new Map<string, Observable<Company[]>>();
 
   create(request: Partial<Company>): Observable<Company> {
-    return this.api.post<Company>(API_ENDPOINTS.companies.create, {
+    return this.api.post<Company>(API_ENDPOINTS.vendors.create, {
       userId: this.getUserId(),
       ...request
     }).pipe(tap(() => this.clearListCache()));
@@ -45,7 +45,7 @@ export class CompanyService {
   }
 
   listPage(request: ListRequest = {}): Observable<PageResponse<Company>> {
-    return this.api.post<PageResponse<Company>, ListRequest>(API_ENDPOINTS.companies.list, {
+    return this.api.post<PageResponse<Company>, ListRequest>(API_ENDPOINTS.vendors.list, {
       userId: this.getUserId(),
       page: 0,
       size: 100,
@@ -54,16 +54,16 @@ export class CompanyService {
   }
 
   detail(request: DetailRequest): Observable<Company> {
-    return this.api.post<Company>(API_ENDPOINTS.companies.detail, {
-      companyId: this.toNumber(request.id)
+    return this.api.post<Company>(API_ENDPOINTS.vendors.detail, {
+      vendorId: this.toNumber(request.id)
     });
   }
 
   update(request: Partial<Company>): Observable<Company> {
     const { id, ...changes } = request;
-    return this.api.post<Company>(API_ENDPOINTS.companies.update, {
+    return this.api.post<Company>(API_ENDPOINTS.vendors.update, {
       userId: this.getUserId(),
-      companyId: this.toNumber(id),
+      vendorId: this.toNumber(id),
       ...changes
     }).pipe(tap(() => this.clearListCache()));
   }

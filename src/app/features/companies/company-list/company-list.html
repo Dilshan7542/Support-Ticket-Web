@@ -1,20 +1,20 @@
 <header class="mb-4">
-  <h2 class="h3 mb-1">Companies</h2>
-  <p class="app-muted mb-0">Create and maintain customer company records, 20 rows per page.</p>
+  <h2 class="h3 mb-1">Vendors</h2>
+  <p class="app-muted mb-0">Create and maintain vendor records, 20 rows per page.</p>
 </header>
 
 <section class="company-grid">
   <form class="card border-0 shadow-sm" [formGroup]="form" (ngSubmit)="create()">
     <div class="card-body vstack gap-3">
-      <h3 class="h5 mb-0">Add Company</h3>
+      <h3 class="h5 mb-0">Add Vendor</h3>
       @if (error()) {
         <div class="alert alert-danger mb-0">{{ error() }}</div>
       }
       @if (message()) {
         <div class="alert alert-success mb-0">{{ message() }}</div>
       }
-      <input class="form-control" formControlName="name" placeholder="Company name" />
-      <input class="form-control" formControlName="code" placeholder="Company code" />
+      <input class="form-control" formControlName="name" placeholder="Vendor name" />
+      <input class="form-control" formControlName="code" placeholder="Vendor code" />
       <textarea class="form-control" formControlName="description" rows="4" placeholder="Description"></textarea>
       <button class="btn btn-primary align-self-start" type="submit" [disabled]="form.invalid">Create</button>
     </div>
@@ -25,7 +25,7 @@
       <table class="table table-hover align-middle mb-0">
         <thead>
           <tr>
-            <th scope="col">Company</th>
+            <th scope="col">Vendor</th>
             <th scope="col">Code</th>
             <th scope="col">Status</th>
             <th scope="col">Description</th>
@@ -40,12 +40,12 @@
               <td>{{ company.status || 'ACTIVE' }}</td>
               <td>{{ company.description || 'No description' }}</td>
               <td class="text-end">
-                <a class="btn btn-outline-primary btn-sm" [routerLink]="['/companies', company.id]">View</a>
+                <a class="btn btn-outline-primary btn-sm" [routerLink]="['/vendors', company.id]">View</a>
               </td>
             </tr>
           } @empty {
             <tr>
-              <td colspan="5" class="text-center app-muted py-4">{{ loading() ? 'Loading companies...' : 'No companies found.' }}</td>
+              <td colspan="5" class="text-center app-muted py-4">{{ loading() ? 'Loading vendors...' : 'No vendors found.' }}</td>
             </tr>
           }
         </tbody>

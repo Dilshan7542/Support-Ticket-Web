@@ -1,7 +1,5 @@
 export interface TicketCategoryMapping {
   id: string | number;
-  companyId: string | number;
-  companyName?: string | null;
   categoryId: string | number;
   categoryCode?: string | null;
   categoryName?: string | null;
