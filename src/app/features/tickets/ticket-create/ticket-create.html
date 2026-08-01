@@ -1,6 +1,6 @@
 <header class="mb-4">
   <h2 class="h3 mb-1">Create Ticket</h2>
-  <p class="app-muted mb-0">Create a complaint ticket manually, or enable AI prediction for category, priority, and department suggestion.</p>
+  <p class="app-muted mb-0">Create a complaint ticket from a customer call and choose the available routing options.</p>
 </header>
 
 <form class="card border-0 shadow-sm" [formGroup]="form" (ngSubmit)="submit()">
@@ -15,6 +15,78 @@
       </div>
     }
 
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label" for="companyId">Company</label>
+        <select id="companyId" class="form-select" formControlName="companyId" [disabled]="companiesLoading">
+          <option value="" disabled>
+            {{ companiesLoading ? 'Loading companies...' : 'Select company' }}
+          </option>
+          @for (company of companies; track company.id) {
+            <option [value]="company.id">{{ company.name }} ({{ company.code }})</option>
+          }
+        </select>
+        @if (companyError) {
+          <div class="text-danger small mt-1">{{ companyError }}</div>
+        } @else if (!companiesLoading && companies.length === 0) {
+          <div class="app-muted small mt-1">No companies found.</div>
+        }
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label" for="categoryCode">Category</label>
+        <select id="categoryCode" class="form-select" formControlName="categoryCode" [disabled]="categoriesLoading">
+          <option value="">
+            {{ categoriesLoading ? 'Loading categories...' : 'Use AI prediction' }}
+          </option>
+          @for (category of categories; track category.id) {
+            <option [value]="category.code">{{ category.name }} ({{ category.code }})</option>
+          }
+        </select>
+        @if (categoryError) {
+          <div class="text-danger small mt-1">{{ categoryError }}</div>
+        } @else if (!categoriesLoading && categories.length === 0) {
+          <div class="app-muted small mt-1">No categories found.</div>
+        }
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label" for="priorityCode">Priority</label>
+        <select id="priorityCode" class="form-select" formControlName="priorityCode" [disabled]="prioritiesLoading">
+          <option value="">
+            {{ prioritiesLoading ? 'Loading priorities...' : 'Use AI prediction' }}
+          </option>
+          @for (priority of priorities; track priority.id) {
+            <option [value]="priority.code">{{ priority.name }} ({{ priority.code }})</option>
+          }
+        </select>
+        @if (priorityError) {
+          <div class="text-danger small mt-1">{{ priorityError }}</div>
+        } @else if (!prioritiesLoading && priorities.length === 0) {
+          <div class="app-muted small mt-1">No priorities found.</div>
+        }
+      </div>
+
+      <div class="col-md-6 d-flex align-items-end">
+        <div class="form-check form-switch mb-2">
+          <input id="aiPredictionEnabled" class="form-check-input" type="checkbox" formControlName="aiPredictionEnabled" />
+          <label class="form-check-label" for="aiPredictionEnabled">Enable AI prediction for blank options</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label" for="callerName">Caller name</label>
+        <input id="callerName" class="form-control" formControlName="callerName" placeholder="Customer or caller name" />
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label" for="callerContact">Caller contact</label>
+        <input id="callerContact" class="form-control" formControlName="callerContact" placeholder="Phone or email" />
+      </div>
+    </div>
+
     <div>
       <label class="form-label" for="title">Title</label>
       <input id="title" class="form-control" formControlName="title" placeholder="Ticket title" />
@@ -25,13 +97,8 @@
       <textarea id="message" class="form-control" formControlName="message" placeholder="Describe the issue" rows="6"></textarea>
     </div>
 
-    <div class="form-check form-switch">
-      <input id="aiPredictionEnabled" class="form-check-input" type="checkbox" formControlName="aiPredictionEnabled" />
-      <label class="form-check-label" for="aiPredictionEnabled">Enable AI prediction</label>
-    </div>
-
     <div class="d-flex gap-2">
-      <button class="btn btn-primary" type="submit" [disabled]="form.invalid || loading">
+      <button class="btn btn-primary" type="submit" [disabled]="form.invalid || loading || optionsLoading">
         {{ loading ? 'Creating...' : 'Create Ticket' }}
       </button>
       <a class="btn btn-outline-secondary" routerLink="/tickets">Back</a>

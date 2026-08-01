@@ -55,8 +55,14 @@ export interface Ticket {
 
 export interface CreateTicketRequest {
   userId: string | number;
-  title: string;
-  message: string;
+  title?: string;
+  message?: string;
+  subject?: string;
+  description?: string;
+  companyId?: string | number;
+  categoryCode?: string | null;
+  priority?: string | null;
+  priorityCode?: string | null;
   attachmentIds?: Array<string | number>;
   aiPredictionEnabled?: boolean;
 }
