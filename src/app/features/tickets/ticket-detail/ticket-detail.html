@@ -83,7 +83,12 @@
               <option [value]="priority.code">{{ priority.name }} ({{ priority.code }})</option>
             }
           </select>
-          <input class="form-control" formControlName="assignedTo" placeholder="Assigned staff id" />
+          <select class="form-select" formControlName="assignedTo">
+            <option value="">Select user</option>
+            @for (user of assignableUsers(); track user.id) {
+              <option [value]="user.id">{{ user.fullName || user.username }}</option>
+            }
+          </select>
           <button class="btn btn-primary" type="submit">Update complaint</button>
         </div>
       </form>

@@ -50,6 +50,10 @@ export const routes: Routes = [
         loadChildren: () => import('./features/companies/companies.routes').then((m) => m.companiesRoutes)
       },
       {
+        path: 'users',
+        loadComponent: () => import('./features/users/user-create/user-create').then((m) => m.UserCreate)
+      },
+      {
         path: 'companies',
         redirectTo: 'vendors'
       },

@@ -23,7 +23,8 @@ export const API_ENDPOINTS = {
     create: '/api/v1/departments/create',
     list: '/api/v1/departments/list',
     detail: '/api/v1/departments/detail',
-    update: '/api/v1/departments/update'
+    update: '/api/v1/departments/update',
+    users: '/api/v1/departments/users'
   },
   vendors: {
     create: '/api/v1/vendors/create',

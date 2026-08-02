@@ -1,0 +1,35 @@
+<header class="mb-4">
+  <h2 class="h3 mb-1">Users</h2>
+  <p class="app-muted mb-0">Create admin users for vendor support teams.</p>
+</header>
+
+<section class="user-grid">
+  <form class="card border-0 shadow-sm" [formGroup]="form" (ngSubmit)="create()">
+    <div class="card-body vstack gap-3">
+      <h3 class="h5 mb-0">Add User</h3>
+      @if (error()) {
+        <div class="alert alert-danger mb-0">{{ error() }}</div>
+      }
+      @if (message()) {
+        <div class="alert alert-success mb-0">{{ message() }}</div>
+      }
+      <input class="form-control" formControlName="username" placeholder="Username" />
+      <input class="form-control" type="password" formControlName="password" placeholder="Password" />
+      <input class="form-control" formControlName="fullName" placeholder="Full name" />
+      <input class="form-control" type="email" formControlName="email" placeholder="Email" />
+      <input class="form-control" formControlName="phone" placeholder="Phone" />
+      <select class="form-select" formControlName="vendorId">
+        <option value="">Select vendor</option>
+        @for (company of companies(); track company.id) {
+          <option [value]="company.id">{{ company.name }} ({{ company.code }})</option>
+        }
+      </select>
+      <select class="form-select" formControlName="role">
+        <option value="EDITOR">Editor</option>
+        <option value="VIEWER">Viewer</option>
+        <option value="SUPER_ADMIN">Super admin</option>
+      </select>
+      <button class="btn btn-primary align-self-start" type="submit" [disabled]="form.invalid">Create</button>
+    </div>
+  </form>
+</section>
