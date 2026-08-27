@@ -133,8 +133,8 @@
       <h3 class="h5 mb-3">Replies</h3>
       <div class="vstack gap-3">
         @for (reply of selectedTicket.replies; track reply.id) {
-          <div class="chat-message" [class.chat-message-own]="isOwnReply(reply.userId)">
-            <strong>{{ isOwnReply(reply.userId) ? 'You' : 'Customer' }}</strong>
+          <div class="chat-message" [class.chat-message-own]="isOwnReply(reply)">
+            <strong>{{ getReplySender(selectedTicket, reply) }}</strong>
             <p class="mb-1">{{ reply.message }}</p>
             <small class="app-muted">{{ reply.createdAt | date:'medium' }}</small>
           </div>

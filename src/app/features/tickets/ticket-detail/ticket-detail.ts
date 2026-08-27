@@ -8,7 +8,7 @@ import { distinctUntilChanged } from 'rxjs/operators';
 import { TokenStorageService } from '../../../core/auth/token-storage.service';
 import { getApiErrorMessage } from '../../../core/models/api-response.model';
 import { Department } from '../../../core/models/department.model';
-import { Ticket } from '../../../core/models/ticket.model';
+import { Ticket, TicketReply } from '../../../core/models/ticket.model';
 import { TicketCategory } from '../../../core/models/ticket-category.model';
 import { TicketPriority } from '../../../core/models/ticket-priority.model';
 import { User } from '../../../core/models/user.model';
@@ -125,8 +125,20 @@ export class TicketDetail implements OnInit {
     });
   }
 
-  isOwnReply(userId: string | number): boolean {
-    return String(userId) === String(this.tokenStorage.getUserId() ?? '');
+  isOwnReply(reply: TicketReply): boolean {
+    return String(this.getReplyUserId(reply)) === String(this.tokenStorage.getUserId() ?? '');
+  }
+
+  getReplySender(ticket: Ticket, reply: TicketReply): string {
+    if (this.isOwnReply(reply)) {
+      return 'You';
+    }
+
+    return String(this.getReplyUserId(reply)) === String(ticket.customerId ?? '') ? 'Customer' : 'Admin';
+  }
+
+  private getReplyUserId(reply: TicketReply): string | number | undefined {
+    return reply.senderUserId ?? reply.userId;
   }
 
   private loadTicket(): void {

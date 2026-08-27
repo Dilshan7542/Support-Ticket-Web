@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 
 import { TokenStorageService } from '../../../core/auth/token-storage.service';
 import { getApiErrorMessage } from '../../../core/models/api-response.model';
-import { Ticket } from '../../../core/models/ticket.model';
+import { Ticket, TicketReply } from '../../../core/models/ticket.model';
 import { TicketService } from '../../tickets/ticket.service';
 
 @Component({
@@ -151,8 +151,16 @@ export class CustomerPortal implements OnInit {
     });
   }
 
-  isOwnReply(userId: string | number): boolean {
-    return String(userId) === this.customer();
+  isOwnReply(reply: TicketReply): boolean {
+    return String(this.getReplyUserId(reply)) === this.customer();
+  }
+
+  getReplySender(reply: TicketReply): string {
+    return this.isOwnReply(reply) ? 'You' : 'Admin';
+  }
+
+  private getReplyUserId(reply: TicketReply): string | number | undefined {
+    return reply.senderUserId ?? reply.userId;
   }
 
   logout(): void {

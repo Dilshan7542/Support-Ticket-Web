@@ -96,8 +96,8 @@
               <strong>Chat</strong>
               <div class="vstack gap-2 mt-2">
                 @for (reply of detailTicket.replies; track reply.id) {
-                  <div class="chat-message" [class.chat-message-own]="isOwnReply(reply.userId)">
-                    <div class="small app-muted">{{ isOwnReply(reply.userId) ? 'You' : 'Support' }} - {{ reply.createdAt | date:'short' }}</div>
+                  <div class="chat-message" [class.chat-message-own]="isOwnReply(reply)">
+                    <div class="small app-muted">{{ getReplySender(reply) }} - {{ reply.createdAt | date:'short' }}</div>
                     <p class="mb-0">{{ reply.message }}</p>
                   </div>
                 } @empty {

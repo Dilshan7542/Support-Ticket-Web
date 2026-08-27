@@ -14,7 +14,8 @@ export interface TicketAttachment {
 export interface TicketReply {
   id?: string | number;
   message: string;
-  userId: string | number;
+  userId?: string | number;
+  senderUserId?: string | number;
   createdAt?: string;
 }
 
